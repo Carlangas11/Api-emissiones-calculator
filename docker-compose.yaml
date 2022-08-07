@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  ZeroCompanyDB:
+    image: mongo:5.0.0
+    restart: always
+    container_name: ZeroCompanyContainer
+    ports:
+      - 27019:27017
+    environment:
+      MONGODB_DATABASE: zerocompany-db
+    volumes:
+      - ./mongo:/data/db
