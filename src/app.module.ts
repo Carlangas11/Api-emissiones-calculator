@@ -9,6 +9,7 @@ import { JoiValidationSchema } from './config/joi.validation';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       typePaths: ['./**/*.graphql'],
+      // autoSchemaFile: join(process.cwd(), 'src/common/schema/appSchema.gql'),
       playground: true,
     }),
   ],
