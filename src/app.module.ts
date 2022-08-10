@@ -8,8 +8,8 @@ import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { join } from 'path';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,13 +20,14 @@ import { join } from 'path';
     MongooseModule.forRoot(process.env.MONGODB),
     CommonModule,
     AuthModule,
-    UsersModule,
+    // UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      typePaths: ['./**/*.graphql'],
-      // autoSchemaFile: join(process.cwd(), 'src/common/schema/appSchema.gql'),
+      // typePaths: ['./**/*.graphql'],
+      autoSchemaFile: join(process.cwd(), 'src/common/schema/appSchema.gql'),
       playground: true,
     }),
+    UsersModule,
   ],
 })
 export class AppModule {}

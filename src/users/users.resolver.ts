@@ -1,35 +1,35 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { CreateUserInputDto } from './dto/create-user.input';
-import { UpdateUserInputDto } from './dto/update-user.input';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { User } from './model/user.model';
+import { UserInput } from './input/user.input';
+import { UpdateUserInput } from './input/update-user.input';
 
-@Resolver('User')
+@Resolver()
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
-  @Mutation('createUser')
-  async create(@Args('createUserInput') createUserInput: CreateUserInputDto) {
-    return await this.usersService.create(createUserInput);
+  @Mutation(() => String, { description: 'This action adds a new user' })
+  createUser(@Args('createUserInput') createUserInput: UserInput) {
+    return this.usersService.create(createUserInput);
   }
 
-  @Query('users')
-  async findAll(@Args('paginationDto') paginationDto: PaginationDto) {
-    return await this.usersService.findAll(paginationDto);
+  @Query(() => [User], { name: 'users' })
+  findAll() {
+    return this.usersService.findAll();
   }
 
-  @Query('user')
-  async findOne(@Args('id') id: number) {
-    return await this.usersService.findOne(id);
+  @Query(() => User, { name: 'user' })
+  findOne(@Args('id', { type: () => ID }) id: string) {
+    return this.usersService.findOne(id);
   }
 
-  @Mutation('updateUser')
-  async update(@Args('updateUserInput') updateUserInput: UpdateUserInputDto) {
-    return await this.usersService.update(updateUserInput.id, updateUserInput);
+  @Mutation(() => User, { description: 'This action updates a #id user' })
+  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
+    return this.usersService.update(updateUserInput.id, updateUserInput);
   }
 
-  @Mutation('removeUser')
-  async remove(@Args('id') id: number) {
-    return await this.usersService.remove(id);
+  @Mutation(() => User, { description: 'This action removes a #id user' })
+  removeUser(@Args('id', { type: () => ID }) id: string) {
+    return this.usersService.remove(id);
   }
 }
