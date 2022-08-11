@@ -28,7 +28,7 @@ export class UsersResolver {
     return await this.usersService.update(input);
   }
 
-  @Mutation(() => String, { description: 'This action removes a #id user' })
+  @Mutation(() => UserDto, { description: 'This action removes a #id user' })
   async removeUser(@Args('input') input: FindUserInput): Promise<any> {
     await this.usersService.remove(input._id);
     return 'User removed';

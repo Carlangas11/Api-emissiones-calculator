@@ -32,7 +32,7 @@ type Mutation {
   updateUser(input: UpdateUserInput!): UserDto!
 
   """This action removes a #id user"""
-  removeUser(input: FindUserInput!): String!
+  removeUser(input: FindUserInput!): UserDto!
 }
 
 input UserInput {
