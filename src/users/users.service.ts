@@ -35,8 +35,17 @@ export class UsersService {
 
   async update(user: UpdateUserInput): Promise<User> {
     const userDb = await this.userModel.findById(user._id);
-    if (user.email)
+
+    if (user.email){
       user.email = user.email.toLowerCase();
+      userDb.email = user.email;
+    }
+    if (user.password){
+      user.password = await hashPassword(user.password);
+      userDb.password = user.password;
+    }
+      
+    
     try {
       await userDb.updateOne(user, { new: true });
       return userDb;
@@ -47,8 +56,8 @@ export class UsersService {
 
   async remove(id: string) {
     const { deletedCount } = await this.userModel.deleteOne({ _id: id });
-    if( deletedCount === 0 )
-      throw new NotFoundException(`User with id "${ id }" not found`);
+    if (deletedCount === 0)
+      throw new NotFoundException(`User with id "${id}" not found`);
     return true;
   }
 

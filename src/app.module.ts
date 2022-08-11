@@ -18,15 +18,14 @@ import { UsersModule } from './users/users.module';
       validationSchema: JoiValidationSchema,
     }),
     MongooseModule.forRoot(process.env.MONGODB),
-    CommonModule,
-    AuthModule,
-    // UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       // typePaths: ['./**/*.graphql'],
       autoSchemaFile: join(process.cwd(), 'src/common/schema/appSchema.gql'),
       playground: true,
     }),
+    CommonModule,
+    AuthModule,
     UsersModule,
   ],
 })
