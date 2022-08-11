@@ -1,11 +1,11 @@
-import { hashSync } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 
-export const hashPassword = (password: string) => {
-    return hashSync(password, 10);
+export const hashPassword = async (password: string):Promise<string> => {
+    return await hash(password, 10);
 }
 
-export const comparePassword = (password: string, hash: string) => {
-    return hashSync(password, 10) === hash;
+export const comparePassword = async (password: string, hashedPass: string): Promise<boolean> => {
+    return await compare(password, hashedPass);
 }
 
 // export const generateToken = (user: any) => {

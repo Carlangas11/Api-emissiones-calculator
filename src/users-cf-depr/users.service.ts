@@ -24,7 +24,7 @@ export class UsersService {
 
   async create(createUserInput: CreateUserInputDto) {
     createUserInput.email = createUserInput.email.toLocaleLowerCase();
-    createUserInput.password = hashPassword(createUserInput.password);
+    createUserInput.password = await hashPassword(createUserInput.password);
 
     try {
       const user = await this.userModel.create(createUserInput);

@@ -2,31 +2,37 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  """User ID"""
-  id: ID!
-
-  """User email"""
+type UserDto {
+  _id: String!
   email: String!
-
-  """User password"""
   password: String!
+  createdAt: DateTime!
+  updatedAt: DateTime
 }
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
-  users: [User!]!
-  user(id: ID!): User!
+  users: [UserDto!]!
+  user(input: FindUserInput!): UserDto!
+}
+
+input FindUserInput {
+  _id: String
 }
 
 type Mutation {
   """This action adds a new user"""
-  createUser(createUserInput: UserInput!): String!
+  createUser(input: UserInput!): UserDto!
 
   """This action updates a #id user"""
-  updateUser(updateUserInput: UpdateUserInput!): User!
+  updateUser(input: UpdateUserInput!): UserDto!
 
   """This action removes a #id user"""
-  removeUser(id: ID!): User!
+  removeUser(input: FindUserInput!): String!
 }
 
 input UserInput {
@@ -35,7 +41,7 @@ input UserInput {
 }
 
 input UpdateUserInput {
+  _id: String!
   email: String
   password: String
-  id: ID!
 }
