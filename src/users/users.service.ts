@@ -33,6 +33,10 @@ export class UsersService {
     return await this.userModel.findById(user._id);
   }
 
+  async findByEmail(email: string): Promise<User> {
+    return await this.userModel.findOne({ email: email.toLowerCase() });
+  }
+
   async update(user: UpdateUserInput): Promise<User> {
     const userDb = await this.userModel.findById(user._id);
 

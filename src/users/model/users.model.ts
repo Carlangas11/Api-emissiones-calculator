@@ -1,4 +1,5 @@
 import { Field, ObjectType } from "@nestjs/graphql";
+import { IsOptional } from "class-validator";
 
 @ObjectType()
 export class UserModel{
@@ -9,7 +10,8 @@ export class UserModel{
     email: string;
 
     @Field()
-    password: string;
+    @IsOptional()
+    password?: string;
 
     @Field()
     createdAt: Date;
