@@ -4,9 +4,15 @@
     "project": "tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint/eslint-plugin"],
+  "plugins": ["@typescript-eslint/eslint-plugin", "eslint-plugin-prettier",
+  "react",
+  "jsx-a11y",
+  "import"
+],
   "extends": [
-    "rokket-labs",
+    "eslint-config-prettier",
+    "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended"
   ],
@@ -24,4 +30,5 @@
       "endOfLine": "auto"
     }]
   }
+  
 }
