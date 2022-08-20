@@ -152,7 +152,7 @@ export class NivelesService {
                 await this.contaminanteModel.deleteMany({});
                 await this.contaminanteModel.insertMany(contaminantesRelated);
                 this.logger.log(`Finished Contaminantes`);
-            }, 13000);
+            }, 20000);
         } catch (error) {
             throw new InternalServerErrorException('Error al crear semilla contaminante');
         }

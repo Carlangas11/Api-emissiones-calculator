@@ -621,7 +621,7 @@ export const contaminantes: IContaminante[] = [
         nivel2: 'Adquisición de electricidad',
         nivel3: 'Sistema Interconectado del Norte Grande (SING)',
         nivel4: 'Sistema Interconectado del Norte Grande (SING)',
-        name: '	Dióxido de Carbono (CO2)',
+        name: 'Dióxido de Carbono (CO2)',
         value: 405.6,
         measureUnit: 'kgCO2eq/MWh',
     },
