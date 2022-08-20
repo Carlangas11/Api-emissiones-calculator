@@ -21,6 +21,7 @@ type LoginResponse {
 }
 
 type Query {
+  session: UserModel!
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
 }
