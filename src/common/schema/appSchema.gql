@@ -24,6 +24,7 @@ type Query {
   session: UserModel!
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
+  seed(lvl: String!): String
 }
 
 input FindUserInput {
