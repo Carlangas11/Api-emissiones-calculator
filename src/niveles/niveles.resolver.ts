@@ -16,7 +16,7 @@ export class NivelesResolver {
   }
 
   @Query(() => [nivel4Model])
-  @UseGuards(JwtAuthGuard)
+  //   @UseGuards(JwtAuthGuard)
   async getNivel4() {
     return await this.nivelesService.findAllL4()
   }
