@@ -10,6 +10,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
+import { NivelesModule } from './niveles/niveles.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { UsersModule } from './users/users.module';
     CommonModule,
     AuthModule,
     UsersModule,
+    NivelesModule,
   ],
 })
 export class AppModule {}
