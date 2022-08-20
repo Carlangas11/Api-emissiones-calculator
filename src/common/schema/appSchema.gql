@@ -23,6 +23,7 @@ type LoginResponse {
 type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
+  seed(lvl: String!): String
 }
 
 input FindUserInput {
