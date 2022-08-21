@@ -25,8 +25,38 @@ export class NivelesResolver {
   }
 
   @Query(() => [nivel4Model])
-  @UseGuards(JwtAuthGuard)
+  //   @UseGuards(JwtAuthGuard)
   async getNivel4() {
     return await this.nivelesService.findAllL4()
+  }
+
+  @Query(() => [ResultUnion], { name: 'getAllLevel', nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async getAllLevel(@Args('lvl') lvl: string): Promise<typeof ResultUnion[]> {
+    return await this.nivelesService.findAll(lvl)
+  }
+
+  @Query(() => ResultUnion, { name: 'getLevelById', nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async getLevelById(
+    @Args('id', ParseMongoIdPipe) id: string,
+  ): Promise<typeof ResultUnion> {
+    return await this.nivelesService.findOne(id)
+  }
+
+  @Mutation(() => nivel1Model, { name: 'createNivel1', nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async createNivel1(
+    @Args('nivel1Input') nivel1Input: Nivel1Input,
+  ): Promise<typeof nivel1Model> {
+    return await this.nivelesService.createLevel1(nivel1Input)
+  }
+
+  @Mutation(() => nivel1Model, { name: 'updateNivel1', nullable: true })
+  @UseGuards(JwtAuthGuard)
+  async updateNivel1(
+    @Args('updateNivel1Input') updateNivel1Input: UpdateNivel1Input,
+  ): Promise<typeof nivel1Model> {
+    return await this.nivelesService.updateLevel1(updateNivel1Input)
   }
 }
