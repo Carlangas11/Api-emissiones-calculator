@@ -49,6 +49,7 @@ type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
+  getNivel4: [nivel4Model!]!
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
 }
