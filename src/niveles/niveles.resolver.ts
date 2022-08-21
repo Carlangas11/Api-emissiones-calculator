@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql'
 import { JwtAuthGuard } from 'src/auth/guards'
-import { ParseMongoIdPipe } from 'src/common/pipes'
+import { ParseMongObjectIdPipe, ParseMongoIdPipe } from 'src/common/pipes'
 import { Nivel1Input, UpdateNivel1Input } from './input'
 import { nivel4Model, nivel3Model, nivel2Model, nivel1Model, contaminanteModel, ResultUnion } from './model'
 
@@ -37,7 +37,7 @@ export class NivelesResolver {
 
     @Mutation(() => nivel1Model, { name: 'updateNivel1', nullable: true })
     @UseGuards(JwtAuthGuard)
-    async updateNivel1(@Args('updateNivel1Input') updateNivel1Input: UpdateNivel1Input ): Promise<typeof nivel1Model> {
+    async updateNivel1(@Args('updateNivel1Input', ParseMongObjectIdPipe) updateNivel1Input: UpdateNivel1Input ): Promise<typeof nivel1Model> {
         return await this.nivelesService.updateLevel1(updateNivel1Input)
     }
 }

@@ -343,7 +343,6 @@ export class NivelesService {
     }
 
     async createLevel1(nivel1Input: Nivel1Input): Promise<any> {
-        console.log(nivel1Input)
         const nivel1 = new this.nivel1Model(nivel1Input)
         try {
             return await nivel1.save()
@@ -354,8 +353,23 @@ export class NivelesService {
         }
     }
     async updateLevel1(updateNivel1Input: UpdateNivel1Input): Promise<any> {
-        console.log(updateNivel1Input)
-        return 'update level 1 working ...'
+        const nivel1Db = await this.nivel1Model.findById(updateNivel1Input._id)
+        console.log(nivel1Db)
+        if (!nivel1Db) {
+            throw new NotFoundException('No se encontro el registro en nivel 1')
+        }
+        if (updateNivel1Input.name) {
+            nivel1Db.name = updateNivel1Input.name
+        }
+
+        try {
+            await nivel1Db.updateOne(updateNivel1Input, { new: true })
+            return nivel1Db
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Can't update Nivel 1 - Check server logs`,
+            )
+        }
     }
 
 
