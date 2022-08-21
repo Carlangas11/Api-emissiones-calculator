@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt'
 
 import { UserModel } from 'src/users/model/users.model'
 import { UsersService } from '../users/users.service'
-import { comparePassword } from 'src/common/helpers/encripter'
+import { comparePassword } from 'src/common/helpers'
 
 @Injectable()
 export class AuthService {

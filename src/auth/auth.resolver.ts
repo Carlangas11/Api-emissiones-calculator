@@ -5,7 +5,7 @@ import { GqlAuthGuard, JwtAuthGuard } from './guards'
 import { AuthService } from './auth.service'
 import { LoginResponse, LoginUserInput } from './dto'
 import { UserModel as User } from 'src/users/model/users.model'
-import { CurrentUser } from 'src/common/helpers/decorators'
+import { CurrentUser } from 'src/common/helpers'
 import { AuthUser } from './interfaces/payload.interface'
 
 @Resolver()

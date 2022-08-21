@@ -21,7 +21,7 @@ type LoginResponse {
 }
 
 type nivel1Model {
-  name: String!
+  name: String
 }
 
 type nivel2Model {
@@ -30,14 +30,14 @@ type nivel2Model {
 }
 
 type nivel3Model {
-  name: String!
-  nivel2: nivel2Model!
+  name: String
+  nivel2: nivel2Model
 }
 
 type nivel4Model {
-  name: String!
-  nivel2: nivel2Model!
-  nivel3: nivel3Model!
+  name: String
+  nivel2: nivel2Model
+  nivel3: nivel3Model
 }
 
 type Query {
@@ -45,11 +45,22 @@ type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getNivel4: [nivel4Model!]!
+  getAllNivel(lvl: String!): [ResultUnion!]
 }
 
 input FindUserInput {
   _id: String!
+}
+
+union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
+
+type contaminanteModel {
+  name: String
+  value: Float
+  measureUnit: String
+  nivel2: nivel2Model
+  nivel3: nivel3Model
+  nivel4: nivel4Model
 }
 
 type Mutation {

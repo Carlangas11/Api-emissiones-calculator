@@ -2,6 +2,6 @@ import { Field, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()
 export class nivel1Model {
-  @Field()
+  @Field({ nullable: true })
   name: string
 }
