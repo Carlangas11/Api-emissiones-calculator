@@ -20,4 +20,11 @@ export class NivelesResolver {
     async getAllNivel(@Args('lvl') lvl: string): Promise<typeof ResultUnion[]> {
         return await this.nivelesService.findAll(lvl)
     }
+
+    @Query(() => ResultUnion, { name: 'getNivelById', nullable: true })
+    @UseGuards(JwtAuthGuard)
+    async getNivelById(@Args('id') id: string): Promise<typeof ResultUnion> {
+        // console.log(`getNivelById: ${id}`)
+        return await this.nivelesService.findOne(id)
+    }
 }

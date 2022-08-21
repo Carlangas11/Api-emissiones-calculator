@@ -21,20 +21,24 @@ type LoginResponse {
 }
 
 type nivel1Model {
+  _id: String
   name: String
 }
 
 type nivel2Model {
+  _id: String
   name: String
   nivel1: nivel1Model
 }
 
 type nivel3Model {
+  _id: String
   name: String
   nivel2: nivel2Model
 }
 
 type nivel4Model {
+  _id: String
   name: String
   nivel2: nivel2Model
   nivel3: nivel3Model
@@ -46,6 +50,7 @@ type Query {
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
   getAllNivel(lvl: String!): [ResultUnion!]
+  getNivelById(id: String!): ResultUnion
 }
 
 input FindUserInput {
@@ -55,6 +60,7 @@ input FindUserInput {
 union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
 
 type contaminanteModel {
+  _id: String
   name: String
   value: Float
   measureUnit: String

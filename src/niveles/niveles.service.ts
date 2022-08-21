@@ -192,32 +192,6 @@ export class NivelesService {
         }
     }
 
-    async findAllL4(): Promise<Nivel4[]> {
-        return await this.nivel4Model
-            .find()
-            .populate({ path: 'nivel2', populate: { path: 'nivel1' } })
-            .populate({
-                path: 'nivel3',
-                populate: { path: 'nivel2', populate: { path: 'nivel1' } },
-            })
-    }
-
-    async findAllL3(): Promise<Nivel3[]> {
-        return await this.nivel3Model
-            .find()
-            .populate({ path: 'nivel2', populate: { path: 'nivel1' } })
-    }
-
-    async findAllL2(): Promise<Nivel2[]> {
-        return await this.nivel2Model
-            .find()
-            .populate({ path: 'nivel1' })
-    }
-
-    async findAllL1(): Promise<Nivel1[]> {
-        return await this.nivel1Model.find()
-    }
-
     async findAllContaminantes(): Promise<Contaminante[]> {
         return await this.contaminanteModel.find()
         .populate({ 
@@ -241,6 +215,119 @@ export class NivelesService {
                 }
             },
         })
-        .populate({ path: 'nivel2', populate: { path: 'nivel1' } })
+        .populate({ 
+            path: 'nivel2', populate: { 
+                path: 'nivel1' 
+            } 
+        })
+    }
+    async findAllL4(): Promise<Nivel4[]> {
+        return await this.nivel4Model
+            .find()
+            .populate({ 
+                path: 'nivel2', 
+                populate: { 
+                    path: 'nivel1' 
+                } 
+            })
+            .populate({
+                path: 'nivel3',
+                populate: { 
+                    path: 'nivel2', 
+                    populate: { 
+                        path: 'nivel1' 
+                    }
+                },
+            })
+    }
+    async findAllL3(): Promise<Nivel3[]> {
+        return await this.nivel3Model
+            .find()
+            .populate({ 
+                path: 'nivel2', 
+                populate: { 
+                    path: 'nivel1' 
+                } 
+            })
+    }
+    async findAllL2(): Promise<Nivel2[]> {
+        return await this.nivel2Model
+            .find()
+            .populate({ path: 'nivel1' })
+    }
+    async findAllL1(): Promise<Nivel1[]> {
+        return await this.nivel1Model.find()
+    }
+
+    async findOne(searchId: string): Promise<any>{
+        const respLevel1 = await this.nivel1Model.findById(searchId);
+        if(respLevel1)
+            return respLevel1;
+
+        const respLevel2 = await this.nivel2Model.findById(searchId)
+            .populate({ path: 'nivel1' });
+        if(respLevel2)
+            return respLevel2;
+        
+        const respLevel3 = await this.nivel3Model.findById(searchId)
+            .populate({ 
+                path: 'nivel2', 
+                populate: { 
+                    path: 'nivel1' 
+                } 
+            });
+        if(respLevel3)
+            return respLevel3;
+        
+        const respLevel4 = await this.nivel4Model.findById(searchId)
+            .populate({ 
+                path: 'nivel2', 
+                populate: { 
+                    path: 'nivel1' 
+                } 
+            })
+            .populate({
+                path: 'nivel3',
+                populate: { 
+                    path: 'nivel2', 
+                    populate: { 
+                        path: 'nivel1' 
+                    }
+                },
+            });
+        if(respLevel4)
+            return respLevel4;
+        
+        const respContaminante = await this.contaminanteModel.findById(searchId)
+            .populate({ 
+                path: 'nivel4', 
+                populate: { 
+                    path: 'nivel3', 
+                    populate: { 
+                        path: 'nivel2', 
+                        populate: { 
+                            path: 'nivel1' 
+                        } 
+                    } 
+                } 
+            })
+            .populate({
+                path: 'nivel3',
+                populate: { 
+                    path: 'nivel2', 
+                    populate: { 
+                        path: 'nivel1' 
+                    }
+                },
+            })
+            .populate({ 
+                path: 'nivel2', populate: { 
+                    path: 'nivel1' 
+                } 
+            });
+        if(respContaminante)
+            return respContaminante;
+        
+        throw new NotFoundException('No se encontro el registro');
     }
 }

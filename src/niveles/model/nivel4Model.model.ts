@@ -3,6 +3,10 @@ import { nivel2Model, nivel3Model } from '.'
 
 @ObjectType()
 export class nivel4Model {
+
+  @Field({ nullable: true })
+  _id: string;
+
   @Field({ nullable: true })
   name: string
 

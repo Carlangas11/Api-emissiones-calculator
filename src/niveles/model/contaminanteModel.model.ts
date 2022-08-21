@@ -3,6 +3,10 @@ import { nivel2Model, nivel3Model, nivel4Model } from '.'
 
 @ObjectType()
 export class contaminanteModel {
+
+    @Field({ nullable: true })
+    _id: string;
+
     @Field({ nullable: true })
     name: string
 
