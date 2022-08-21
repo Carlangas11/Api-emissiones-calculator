@@ -44,7 +44,7 @@ type nivel4Model {
   nivel3: nivel3Model
 }
 
-type contaminanteOutput {
+type contaminanteResponse {
   _id: String!
   name: String!
   value: Float!
@@ -60,7 +60,7 @@ type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getContaminantes: [contaminanteOutput!]!
+  getContaminantes: [contaminanteResponse!]!
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
 }

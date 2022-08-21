@@ -11,7 +11,7 @@ import {
   contaminanteModel,
   ResultUnion,
 } from './model'
-import { contaminanteOutput } from './model/contaminanteOutput.model'
+import { contaminanteResponse } from './dto/contaminanteResponse.dto'
 
 import { NivelesService } from './niveles.service'
 
@@ -25,8 +25,8 @@ export class NivelesResolver {
     return await this.nivelesService.seed(lvl)
   }
 
-  @Query(() => [contaminanteOutput])
-  async getContaminantes(): Promise<contaminanteOutput[]> {
+  @Query(() => [contaminanteResponse])
+  async getContaminantes(): Promise<contaminanteResponse[]> {
     return this.nivelesService.getContaminantes()
   }
 

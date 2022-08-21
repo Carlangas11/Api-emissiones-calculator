@@ -31,7 +31,7 @@ import {
 } from './input'
 import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante } from './schema'
 import { contaminanteModel } from './model'
-import { contaminanteOutput } from './model/contaminanteOutput.model'
+import { contaminanteResponse } from './dto/contaminanteResponse.dto'
 
 @Injectable()
 export class NivelesService {
@@ -237,7 +237,7 @@ export class NivelesService {
       })
   }
 
-  async getContaminantes(): Promise<contaminanteOutput[]> {
+  async getContaminantes(): Promise<contaminanteResponse[]> {
     const contaminantes = await this.contaminanteModel
       .find()
       .populate({

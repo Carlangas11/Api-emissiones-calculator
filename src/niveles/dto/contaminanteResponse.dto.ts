@@ -2,7 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql'
 // import { nivel2Model, nivel3Model, nivel4Model } from '.'
 
 @ObjectType()
-export class contaminanteOutput {
+export class contaminanteResponse {
   @Field()
   _id: string
 
