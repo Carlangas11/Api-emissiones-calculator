@@ -44,12 +44,23 @@ type nivel4Model {
   nivel3: nivel3Model
 }
 
+type contaminanteOutput {
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel1: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getNivel4: [nivel4Model!]!
+  getContaminantes: [contaminanteOutput!]!
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
 }
@@ -61,13 +72,13 @@ input FindUserInput {
 union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
 
 type contaminanteModel {
-  _id: String
-  name: String
-  value: Float
-  measureUnit: String
-  nivel2: nivel2Model
-  nivel3: nivel3Model
-  nivel4: nivel4Model
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: nivel2Model!
+  nivel3: nivel3Model!
+  nivel4: nivel4Model!
 }
 
 type Mutation {

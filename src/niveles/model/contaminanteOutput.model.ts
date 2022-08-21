@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql'
-import { nivel2Model, nivel3Model, nivel4Model } from '.'
+// import { nivel2Model, nivel3Model, nivel4Model } from '.'
 
 @ObjectType()
-export class contaminanteModel {
+export class contaminanteOutput {
   @Field()
   _id: string
 
@@ -16,11 +16,14 @@ export class contaminanteModel {
   measureUnit: string
 
   @Field()
-  nivel2: nivel2Model
+  nivel1: string
 
   @Field()
-  nivel3: nivel3Model
+  nivel2: string
 
   @Field()
-  nivel4: nivel4Model
+  nivel3: string
+
+  @Field()
+  nivel4: string
 }

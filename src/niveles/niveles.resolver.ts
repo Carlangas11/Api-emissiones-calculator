@@ -11,6 +11,7 @@ import {
   contaminanteModel,
   ResultUnion,
 } from './model'
+import { contaminanteOutput } from './model/contaminanteOutput.model'
 
 import { NivelesService } from './niveles.service'
 
@@ -22,6 +23,11 @@ export class NivelesResolver {
   @UseGuards(JwtAuthGuard)
   async seed(@Args('lvl') lvl: string) {
     return await this.nivelesService.seed(lvl)
+  }
+
+  @Query(() => [contaminanteOutput])
+  async getContaminantes(): Promise<contaminanteOutput[]> {
+    return this.nivelesService.getContaminantes()
   }
 
   @Query(() => [ResultUnion], { name: 'getAllLevel', nullable: true })
