@@ -1,7 +1,16 @@
 import { UseGuards } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql'
 import { JwtAuthGuard } from 'src/auth/guards'
-import { nivel4Model } from './model/nivel4Model.model'
+import { ParseMongoIdPipe } from 'src/common/pipes'
+import { Nivel1Input, UpdateNivel1Input } from './input'
+import {
+  nivel4Model,
+  nivel3Model,
+  nivel2Model,
+  nivel1Model,
+  contaminanteModel,
+  ResultUnion,
+} from './model'
 
 import { NivelesService } from './niveles.service'
 
@@ -16,7 +25,7 @@ export class NivelesResolver {
   }
 
   @Query(() => [nivel4Model])
-  //   @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async getNivel4() {
     return await this.nivelesService.findAllL4()
   }

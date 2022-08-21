@@ -1,15 +1,18 @@
 import { Field, ObjectType } from '@nestjs/graphql'
-import { nivel2Model } from './nivel2Model.model'
-import { nivel3Model } from './nivel3Model.model'
+import { nivel2Model, nivel3Model } from '.'
 
 @ObjectType()
 export class nivel4Model {
-  @Field()
+
+  @Field({ nullable: true })
+  _id: string;
+
+  @Field({ nullable: true })
   name: string
 
-  @Field()
+  @Field({ nullable: true })
   nivel2: nivel2Model
 
-  @Field()
+  @Field({ nullable: true })
   nivel3: nivel3Model
 }

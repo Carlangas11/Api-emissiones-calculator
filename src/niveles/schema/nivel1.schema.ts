@@ -3,7 +3,7 @@ import { Document } from 'mongoose'
 
 @Schema()
 export class Nivel1 extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string
 
   @Prop({ required: true, default: () => new Date() })

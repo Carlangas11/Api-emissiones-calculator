@@ -21,23 +21,27 @@ type LoginResponse {
 }
 
 type nivel1Model {
-  name: String!
+  _id: String
+  name: String
 }
 
 type nivel2Model {
+  _id: String
   name: String
   nivel1: nivel1Model
 }
 
 type nivel3Model {
-  name: String!
-  nivel2: nivel2Model!
+  _id: String
+  name: String
+  nivel2: nivel2Model
 }
 
 type nivel4Model {
-  name: String!
-  nivel2: nivel2Model!
-  nivel3: nivel3Model!
+  _id: String
+  name: String
+  nivel2: nivel2Model
+  nivel3: nivel3Model
 }
 
 type Query {
@@ -45,11 +49,24 @@ type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getNivel4: [nivel4Model!]!
+  getAllLevel(lvl: String!): [ResultUnion!]
+  getLevelById(id: String!): ResultUnion
 }
 
 input FindUserInput {
   _id: String!
+}
+
+union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
+
+type contaminanteModel {
+  _id: String
+  name: String
+  value: Float
+  measureUnit: String
+  nivel2: nivel2Model
+  nivel3: nivel3Model
+  nivel4: nivel4Model
 }
 
 type Mutation {
@@ -63,6 +80,8 @@ type Mutation {
 
   """This action removes a #id user"""
   removeUser(input: FindUserInput!): String!
+  createNivel1(nivel1Input: Nivel1Input!): nivel1Model
+  updateNivel1(updateNivel1Input: UpdateNivel1Input!): nivel1Model
 }
 
 input LoginUserInput {
@@ -79,4 +98,13 @@ input UpdateUserInput {
   _id: String!
   email: String
   password: String
+}
+
+input Nivel1Input {
+  name: String!
+}
+
+input UpdateNivel1Input {
+  _id: String!
+  name: String!
 }

@@ -1,4 +1,4 @@
-import { INivel1, INivel2, INivel3, INivel4, IContaminante } from './interfaces'
+import { INivel1, INivel2, INivel3, INivel4, IContaminante } from '../interfaces'
 
 export const nivel1: INivel1[] = [
   { name: 'Alcance 1' },
