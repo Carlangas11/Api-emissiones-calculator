@@ -49,8 +49,8 @@ type Query {
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getAllNivel(lvl: String!): [ResultUnion!]
-  getNivelById(id: String!): ResultUnion
+  getAllLevel(lvl: String!): [ResultUnion!]
+  getLevelById(id: String!): ResultUnion
 }
 
 input FindUserInput {
@@ -80,6 +80,8 @@ type Mutation {
 
   """This action removes a #id user"""
   removeUser(input: FindUserInput!): String!
+  createNivel1(nivel1Input: Nivel1Input!): nivel1Model
+  updateNivel1(updateNivel1Input: UpdateNivel1Input!): nivel1Model
 }
 
 input LoginUserInput {
@@ -96,4 +98,13 @@ input UpdateUserInput {
   _id: String!
   email: String
   password: String
+}
+
+input Nivel1Input {
+  name: String!
+}
+
+input UpdateNivel1Input {
+  _id: String!
+  name: String!
 }
