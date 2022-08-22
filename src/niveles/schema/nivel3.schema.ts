@@ -4,17 +4,16 @@ import { Nivel2 } from ".";
 
 @Schema()
 export class Nivel3 extends Document {
-
     @Prop({ required: true })
     name: string;
 
-    @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Nivel2'})
+    @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Nivel2' })
     nivel2: Nivel2;
 
-    @Prop({ required: true, default:() => new Date()})
+    @Prop({ required: true, default: () => new Date() })
     createdAt: Date;
 
-    @Prop({ required: false, default: null})
+    @Prop({ required: false, default: null })
     updatedAt: Date;
 }
 

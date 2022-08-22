@@ -20,16 +20,71 @@ type LoginResponse {
   user: UserModel!
 }
 
+type nivel1Model {
+  _id: String
+  name: String
+}
+
+type nivel2Model {
+  _id: String
+  name: String
+  nivel1: nivel1Model
+}
+
+type nivel3Model {
+  _id: String
+  name: String
+  nivel2: nivel2Model
+}
+
+type nivel4Model {
+  _id: String
+  name: String
+  nivel2: nivel2Model
+  nivel3: nivel3Model
+}
+
+type contaminanteModel {
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: nivel2Model!
+  nivel3: nivel3Model!
+  nivel4: nivel4Model!
+}
+
+type contaminanteOutput {
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel1: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
+}
+
+type contaminanteResponse {
+  contaminantes: [contaminanteOutput!]!
+  pagination: String
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
+  getAllLevel(lvl: String!): [ResultUnion!]
+  getLevelById(id: String!): ResultUnion
+  getContaminantes(pagination: Float!): contaminanteResponse!
 }
 
 input FindUserInput {
   _id: String!
 }
+
+union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
 
 type Mutation {
   login(loginUserInput: LoginUserInput!): LoginResponse!
@@ -42,6 +97,9 @@ type Mutation {
 
   """This action removes a #id user"""
   removeUser(input: FindUserInput!): String!
+  createContaminante(contaminanteInput: ContaminanteInput!): contaminanteModel
+  updateContaminante(updateContaminanteInput: UpdateContaminanteInput!): contaminanteModel
+  deleteContaminante(id: String!): contaminanteModel
 }
 
 input LoginUserInput {
@@ -58,4 +116,23 @@ input UpdateUserInput {
   _id: String!
   email: String
   password: String
+}
+
+input ContaminanteInput {
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
+}
+
+input UpdateContaminanteInput {
+  _id: String!
+  name: String
+  value: Float
+  measureUnit: String
+  nivel2: String
+  nivel3: String
+  nivel4: String
 }
