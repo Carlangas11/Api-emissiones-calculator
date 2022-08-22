@@ -15,7 +15,6 @@ export class AuthResolver {
   @Query(() => User)
   @UseGuards(JwtAuthGuard)
   async session(@CurrentUser() user: AuthUser) {
-    console.log(user)
     return this.authService.session(user.userId)
   }
 

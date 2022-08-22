@@ -20,7 +20,10 @@ import { IContaminante, INivel2, INivel3, INivel4 } from 'src/common/interfaces'
 import { ContaminanteInput, UpdateContaminanteInput } from './input'
 import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante } from './schema'
 import { contaminanteModel } from './model'
-import { contaminanteResponse } from './dto/contaminanteResponse.dto'
+import {
+  contaminanteOutput,
+  contaminanteResponse,
+} from './dto/contaminanteResponse.dto'
 
 @Injectable()
 export class NivelesService {
@@ -226,9 +229,16 @@ export class NivelesService {
       })
   }
 
-  async getContaminantes(): Promise<contaminanteResponse[]> {
+  async getContaminantes(pagination?: number): Promise<contaminanteResponse> {
+    if (pagination < 1) throw new Error('not valid number of pagination')
+
+    const limit = Number(process.env.LIMIT_PAGINATION) ?? 20
+    const startPagination = (pagination - 1) * 5
+
     const contaminantes = await this.contaminanteModel
       .find()
+      .limit(limit)
+      .skip(startPagination)
       .populate({
         path: 'nivel4',
         populate: {
@@ -270,7 +280,20 @@ export class NivelesService {
       }
     })
 
-    return returnContaminantes
+    let response: contaminanteResponse
+
+    if (pagination)
+      response = {
+        pagination: pagination.toString(),
+        contaminantes: returnContaminantes,
+      }
+    else {
+      response = {
+        contaminantes: returnContaminantes,
+      }
+    }
+
+    return response
   }
 
   async findAllL4(): Promise<Nivel4[]> {

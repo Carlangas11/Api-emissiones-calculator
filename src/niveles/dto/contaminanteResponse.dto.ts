@@ -1,8 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql'
-// import { nivel2Model, nivel3Model, nivel4Model } from '.'
 
 @ObjectType()
-export class contaminanteResponse {
+export class contaminanteOutput {
   @Field()
   _id: string
 
@@ -26,4 +25,13 @@ export class contaminanteResponse {
 
   @Field()
   nivel4: string
+}
+
+@ObjectType()
+export class contaminanteResponse {
+  @Field(() => [contaminanteOutput])
+  contaminantes: contaminanteOutput[]
+
+  @Field({ nullable: true })
+  pagination?: string
 }

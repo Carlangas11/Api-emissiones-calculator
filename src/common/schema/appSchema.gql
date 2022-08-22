@@ -65,14 +65,19 @@ type contaminanteResponse {
   nivel4: String!
 }
 
+type contaminanteResponse {
+  contaminantes: [contaminanteOutput!]!
+  pagination: String
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
   user(input: FindUserInput!): UserModel
   seed(lvl: String!): String
-  getContaminantes: [contaminanteResponse!]!
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
+  getContaminantes(pagination: Float!): contaminanteResponse!
 }
 
 input FindUserInput {
