@@ -44,7 +44,21 @@ type nivel4Model {
   nivel3: nivel3Model
 }
 
+<<<<<<< HEAD
 type contaminanteResponse {
+=======
+type contaminanteModel {
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: nivel2Model!
+  nivel3: nivel3Model!
+  nivel4: nivel4Model!
+}
+
+type contaminanteOutput {
+>>>>>>> e0cd2b3122741db7f030b77b7a946d412041e2ba
   _id: String!
   name: String!
   value: Float!
@@ -71,16 +85,6 @@ input FindUserInput {
 
 union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
 
-type contaminanteModel {
-  _id: String!
-  name: String!
-  value: Float!
-  measureUnit: String!
-  nivel2: nivel2Model!
-  nivel3: nivel3Model!
-  nivel4: nivel4Model!
-}
-
 type Mutation {
   login(loginUserInput: LoginUserInput!): LoginResponse!
 
@@ -92,8 +96,9 @@ type Mutation {
 
   """This action removes a #id user"""
   removeUser(input: FindUserInput!): String!
-  createNivel1(nivel1Input: Nivel1Input!): nivel1Model
-  updateNivel1(updateNivel1Input: UpdateNivel1Input!): nivel1Model
+  createContaminante(contaminanteInput: ContaminanteInput!): contaminanteModel
+  updateContaminante(updateContaminanteInput: UpdateContaminanteInput!): contaminanteModel
+  deleteContaminante(id: String!): contaminanteModel
 }
 
 input LoginUserInput {
@@ -112,11 +117,21 @@ input UpdateUserInput {
   password: String
 }
 
-input Nivel1Input {
+input ContaminanteInput {
   name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
 }
 
-input UpdateNivel1Input {
+input UpdateContaminanteInput {
   _id: String!
-  name: String!
+  name: String
+  value: Float
+  measureUnit: String
+  nivel2: String
+  nivel3: String
+  nivel4: String
 }
