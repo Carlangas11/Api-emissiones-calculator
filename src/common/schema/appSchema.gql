@@ -44,9 +44,6 @@ type nivel4Model {
   nivel3: nivel3Model
 }
 
-<<<<<<< HEAD
-type contaminanteResponse {
-=======
 type contaminanteModel {
   _id: String!
   name: String!
@@ -57,8 +54,7 @@ type contaminanteModel {
   nivel4: nivel4Model!
 }
 
-type contaminanteOutput {
->>>>>>> e0cd2b3122741db7f030b77b7a946d412041e2ba
+type contaminanteResponse {
   _id: String!
   name: String!
   value: Float!
