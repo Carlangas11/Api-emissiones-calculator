@@ -54,6 +54,22 @@ type contaminanteModel {
   nivel4: nivel4Model!
 }
 
+type contaminanteOutput {
+  _id: String!
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel1: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
+}
+
+type contaminanteResponse {
+  contaminantes: [contaminanteOutput!]!
+  pagination: String
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -61,6 +77,7 @@ type Query {
   seed(lvl: String!): String
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
+  getContaminantes(pagination: Float!): contaminanteResponse!
 }
 
 input FindUserInput {
@@ -80,6 +97,8 @@ type Mutation {
 
   """This action removes a #id user"""
   removeUser(input: FindUserInput!): String!
+  createContaminante(contaminanteInput: ContaminanteInput!): contaminanteModel
+  updateContaminante(updateContaminanteInput: UpdateContaminanteInput!): contaminanteModel
   deleteContaminante(id: String!): contaminanteModel
 }
 
@@ -97,4 +116,23 @@ input UpdateUserInput {
   _id: String!
   email: String
   password: String
+}
+
+input ContaminanteInput {
+  name: String!
+  value: Float!
+  measureUnit: String!
+  nivel2: String!
+  nivel3: String!
+  nivel4: String!
+}
+
+input UpdateContaminanteInput {
+  _id: String!
+  name: String
+  value: Float
+  measureUnit: String
+  nivel2: String
+  nivel3: String
+  nivel4: String
 }

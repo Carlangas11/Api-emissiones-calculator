@@ -9,21 +9,12 @@ import { InjectModel } from '@nestjs/mongoose'
 import { isValidObjectId, Model } from 'mongoose'
 import { setTimeout } from 'timers'
 
-import {
-  nivel1,
-  nivel2,
-  nivel3,
-  nivel4,
-  contaminantes,
-} from 'src/common/bd/huellaChileDB'
+import { nivel1, nivel2, nivel3, nivel4, contaminantes } from 'src/common/bd/huellaChileDB'
 import { IContaminante, INivel2, INivel3, INivel4 } from 'src/common/interfaces'
 import { ContaminanteInput, UpdateContaminanteInput } from './input'
 import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante } from './schema'
 import { contaminanteModel } from './model'
-import {
-  contaminanteOutput,
-  contaminanteResponse,
-} from './dto/contaminanteResponse.dto'
+import { contaminanteOutput, contaminanteResponse } from './dto/contaminanteResponse.dto'
 
 @Injectable()
 export class NivelesService {

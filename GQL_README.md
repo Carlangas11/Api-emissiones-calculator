@@ -276,12 +276,74 @@ query getNivel{
   }
 }
 ```
-* createNivel1(name)
+<!-- * createNivel1(name)
 ```
 mutation createNivel1 {
 	createNivel1(nivel1Input:{ name: "<string>"}){
     _id,
     name
+  }
+}
+``` -->
+* createContaminante
+```
+mutation createContaminante($input: ContaminanteInput!){
+  createContaminante(contaminanteInput: $input){
+    _id,
+    name,
+    value,
+    measureUnit,
+    nivel2{
+      _id,
+      ...etc
+    },
+   	nivel3{
+      _id
+      ...etc
+    },
+    nivel4{
+      _id
+      ...etc
+    },
+  }
+}
+
+{
+  "input": {
+    "name": "<string>",
+    "value": <number>,
+    "measureUnit": "<string>",
+    "nivel2": "<mongo_id>",
+    "nivel3": "<mongo_id>",
+    "nivel4": "<mongo_id>"
+  }
+}
+
+```
+* updateContaminante ('?' fields are Optional)
+```
+mutation updateContaminante{
+  updateContaminante(updateContaminanteInput:{
+    _id: "<mongo_id>",
+    name?: "<string>",
+    measureUnit?: "<string>",
+    value?: "<number>",
+    nivel2?: "<mongo_id>",
+    nivel3?: "<mongo_id>",
+    nivel4?: "<mongo_id>",
+  }){
+    _id,
+    ...etc
+  }
+}
+```
+* deleteContaminante
+```
+mutation deleteContaminante{
+  deleteContaminante(id: "<mongo_id>"){
+    _id,
+    name,
+    ...etc
   }
 }
 ```
