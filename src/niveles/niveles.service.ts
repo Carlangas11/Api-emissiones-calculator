@@ -6,32 +6,14 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { isValidObjectId, Model } from 'mongoose'
 import { setTimeout } from 'timers'
 
-import {
-  nivel1,
-  nivel2,
-  nivel3,
-  nivel4,
-  contaminantes,
-} from 'src/common/bd/huellaChileDB'
+import { nivel1, nivel2, nivel3, nivel4, contaminantes} from 'src/common/bd/huellaChileDB'
 import { IContaminante, INivel2, INivel3, INivel4 } from 'src/common/interfaces'
-import {
-  Nivel1Input,
-  Nivel2Input,
-  Nivel3Input,
-  Nivel4Input,
-  ContaminanteInput,
-  UpdateNivel1Input,
-  UpdateNivel2Input,
-  UpdateNivel3Input,
-  UpdateNivel4Input,
-  UpdateContaminanteInput,
-} from './input'
+import { ContaminanteInput, UpdateContaminanteInput } from './input'
 import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante } from './schema'
-import { contaminanteModel } from './model'
-import { contaminanteOutput } from './model/contaminanteOutput.model'
+import { contaminanteOutput } from './model'
 
 @Injectable()
 export class NivelesService {
@@ -126,6 +108,7 @@ export class NivelesService {
     }
     return 'Seed nivel3 working ...'
   }
+
 
   async seedLvl4(): Promise<string> {
     this.logger.log('Seeding started')
@@ -388,33 +371,140 @@ export class NivelesService {
     throw new NotFoundException('No se encontro el registro')
   }
 
-  async createLevel1(nivel1Input: Nivel1Input): Promise<any> {
-    const nivel1 = new this.nivel1Model(nivel1Input)
-    try {
-      return await nivel1.save()
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Error al crear nivel 1, favor verifique que no exista un nivel 1 con el mismo nombre o que la base de datos este operativa',
-      )
-    }
-  }
-  async updateLevel1(updateNivel1Input: UpdateNivel1Input): Promise<any> {
-    const nivel1Db = await this.nivel1Model.findById(updateNivel1Input._id)
-    console.log(nivel1Db)
-    if (!nivel1Db) {
-      throw new NotFoundException('No se encontro el registro en nivel 1')
-    }
-    if (updateNivel1Input.name) {
-      nivel1Db.name = updateNivel1Input.name
+    // async createLevel1(nivel1Input: Nivel1Input): Promise<any> {
+    //     const nivel1 = new this.nivel1Model(nivel1Input)
+    //     try {
+    //         return await nivel1.save()
+    //     } catch (error) {
+    //         throw new InternalServerErrorException(
+    //             'Error al crear nivel 1, favor verifique que no exista un nivel 1 con el mismo nombre o que la base de datos este operativa',
+    //         )
+    //     }
+    // }
+
+    // async updateLevel1(updateNivel1Input: UpdateNivel1Input): Promise<any> {
+    //     const nivel1Db = await this.nivel1Model.findById(updateNivel1Input._id)
+    //     console.log(nivel1Db)
+    //     if (!nivel1Db) {
+    //         throw new NotFoundException('No se encontro el registro en nivel 1')
+    //     }
+    //     if (updateNivel1Input.name) {
+    //         nivel1Db.name = updateNivel1Input.name
+    //     }
+
+    //     try {
+    //         await nivel1Db.updateOne(updateNivel1Input, { new: true })
+    //         return nivel1Db
+    //     } catch (error) {
+    //         throw new InternalServerErrorException(
+    //             `Can't update Nivel 1 - Check server logs`,
+    //         )
+    //     }
+    // }
+
+    // async deleteLevel1(id: string): Promise<any>{
+    //     const nivel1Db = await this.nivel1Model.findById(id)
+    //     if (!nivel1Db) {
+    //         throw new NotFoundException('No se encontro el registro en nivel 1')
+    //     }
+    //     try {
+    //         await nivel1Db.remove()
+    //         return nivel1Db
+    //     } catch (error) {
+    //         throw new InternalServerErrorException(
+    //             `Can't delete Nivel 1 - Check server logs`,
+    //         )
+    //     }
+    // }
+
+    async createContaminante(contaminanteInput: ContaminanteInput): Promise<any> {
+
+        if (!isValidObjectId(contaminanteInput.nivel2))
+            throw new BadRequestException(`Invalid mongo id nivel2: ${contaminanteInput.nivel2}`);
+        if (!isValidObjectId(contaminanteInput.nivel3))
+            throw new BadRequestException(`Invalid mongo id nivel3: ${contaminanteInput.nivel3}`);
+        if (!isValidObjectId(contaminanteInput.nivel4))
+            throw new BadRequestException(`Invalid mongo id nivel4: ${contaminanteInput.nivel4}`);
+
+        if (contaminanteInput.nivel2) {
+            const nivel2 = await this.nivel2Model.findById(contaminanteInput.nivel2)
+            if (!nivel2)
+                throw new NotFoundException('No se encontro el registro de nivel 2')
+        }
+        if (contaminanteInput.nivel3) {
+            const nivel3 = await this.nivel3Model.findById(contaminanteInput.nivel3)
+            if (!nivel3)
+                throw new NotFoundException('No se encontro el registro de nivel 3')
+        }
+        if (contaminanteInput.nivel4) {
+            const nivel4 = await this.nivel4Model.findById(contaminanteInput.nivel4)
+            if (!nivel4)
+                throw new NotFoundException('No se encontro el registro de nivel 4')
+        }
+        const contaminante = new this.contaminanteModel(contaminanteInput)
+        try {
+            return await contaminante.save()
+        } catch (error) {
+            throw new InternalServerErrorException(
+                'Error al crear contaminante, favor verifique que la base de datos este operativa',
+            )
+        }
     }
 
-    try {
-      await nivel1Db.updateOne(updateNivel1Input, { new: true })
-      return nivel1Db
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Can't update Nivel 1 - Check server logs`,
-      )
+    async updateContaminante(updateContaminanteInput: UpdateContaminanteInput): Promise<any> {
+        
+        const contaminanteDb = await this.contaminanteModel.findById(updateContaminanteInput._id)
+        if (!contaminanteDb)
+            throw new NotFoundException('No se encontro el registro de contaminante')
+        
+        if (updateContaminanteInput.name)
+            contaminanteDb.name = updateContaminanteInput.name
+        if (updateContaminanteInput.value)
+            contaminanteDb.value = updateContaminanteInput.value
+        if (updateContaminanteInput.measureUnit)
+            contaminanteDb.measureUnit = updateContaminanteInput.measureUnit
+        
+        if (updateContaminanteInput.nivel2) {
+            const nivel2 = await this.nivel2Model.findById(updateContaminanteInput.nivel2)
+            if (!nivel2)
+                throw new NotFoundException('No se encontro el registro de nivel 2')
+            contaminanteDb.nivel2 = nivel2._id
+        }
+        if (updateContaminanteInput.nivel3) {
+            const nivel3 = await this.nivel3Model.findById(updateContaminanteInput.nivel3)
+            if (!nivel3)
+                throw new NotFoundException('No se encontro el registro de nivel 3')
+            contaminanteDb.nivel3 = nivel3._id
+        }
+        if (updateContaminanteInput.nivel4) {
+            const nivel4 = await this.nivel4Model.findById(updateContaminanteInput.nivel4)
+            if (!nivel4)
+                throw new NotFoundException('No se encontro el registro de nivel 4')
+            contaminanteDb.nivel4 = nivel4._id
+        }
+
+        try {
+            await contaminanteDb.updateOne(updateContaminanteInput, { new: true })
+            return contaminanteDb
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Can't update contaminante - Check server logs`,
+            )
+        } 
     }
-  }
+
+    async deleteContaminante(id: string): Promise<any> {
+        const contaminanteDb = await this.contaminanteModel.findById(id)
+        if (!contaminanteDb) {
+            throw new NotFoundException('No se encontro el registro en contaminante')
+        }
+        try {
+            await contaminanteDb.remove()
+            return contaminanteDb
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Can't delete Contaminante - Check server logs`,
+            )
+        }
+    }
 }

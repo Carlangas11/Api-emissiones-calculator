@@ -1,18 +1,7 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { 
-  Contaminante,
-  ContaminanteSchema,
-  Nivel1,
-  Nivel1Schema,
-  Nivel2,
-  Nivel2Schema,
-  Nivel3,
-  Nivel3Schema,
-  Nivel4,
-  Nivel4Schema,
-} from './schema';
+import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema} from './schema';
 import { NivelesService } from './niveles.service';
 import { NivelesResolver } from './niveles.resolver';
 
