@@ -70,6 +70,13 @@ type contaminanteResponse {
   pagination: String
 }
 
+type Report {
+  ok: Boolean!
+  msg: String!
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -78,6 +85,7 @@ type Query {
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
   getContaminantes(pagination: Float!): contaminanteResponse!
+  generateReport: Report!
 }
 
 input FindUserInput {

@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { NivelesModule } from './niveles/niveles.module';
+import { IntegrationModule } from './integration/integration.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { NivelesModule } from './niveles/niveles.module';
     AuthModule,
     UsersModule,
     NivelesModule,
+    IntegrationModule,
+    ReportModule,
   ],
 })
 export class AppModule {}
