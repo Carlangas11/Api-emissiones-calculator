@@ -3,7 +3,7 @@ import { CreateIntegrationInput } from './dto/create-integration.input';
 import { UpdateIntegrationInput } from './dto/update-integration.input';
 import { ParseExcelResponse } from './entities/integration.entity';
 import * as XLSX from 'xlsx';
-import { IResultEntry } from './interface/result.interface';
+import { IFormatoExcelImportacion } from './interface/result.interface';
 
 @Injectable()
 export class IntegrationService {
@@ -12,9 +12,10 @@ export class IntegrationService {
     const startDate = new Date();
 
     try {
-      const workbook = XLSX.readFile('./src/integration/data/CasoMultiX.xlsx');
-      const sheet_name_list = workbook.SheetNames;
-      const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IResultEntry[];
+      // const workbook = XLSX.readFile('./src/integration/data/CasoMultiX.xlsx');
+      const workbook = XLSX.readFile('./src/integration/data/FormatoExcelImportacion.xlsx');
+      // const sheet_name_list = workbook.SheetNames;
+      const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelImportacion[];
 
       return {
         ok: true,
