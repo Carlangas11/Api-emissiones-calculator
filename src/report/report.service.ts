@@ -51,6 +51,7 @@ export class ReportService {
         //TODO: INSERT REPORT IN REPORT COLLECTION
         //TODO: INSERT REPORTITEM IN REPORTITEM COLLECTION
 
+        console.log(`Starting for index ${index+2}`);
         //CHECK LEVEL1 IN BD
         console.log(`findNivel1 for index ${index+2} and nivel1 ${entry.Alcance}`);
         const { _id: nivel1ID = undefined } = await this.nivel1Model.findOne({ name: String(entry.Alcance).trim() });
