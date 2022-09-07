@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { IResultEntry } from '../interface/result.interface';
+import { IFormatoExcelImportacion, IResultEntry } from '../interface/result.interface';
 
 @ObjectType()
 export class Integration {
@@ -22,5 +22,5 @@ export class ParseExcelResponse {
   endDate: Date;
 
   @Field()
-  data: Array<IResultEntry>;
+  data: Array<IFormatoExcelImportacion>;
 }

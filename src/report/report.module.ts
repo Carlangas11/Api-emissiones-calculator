@@ -4,6 +4,7 @@ import { ReportResolver } from './report.resolver';
 import { IntegrationModule } from 'src/integration/integration.module';
 import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema } from 'src/niveles/schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Report, ReportItem, ReportItemSchema, ReportResult, ReportResultSchema, ReportSchema } from './schema';
 
 @Module({
   imports: [
@@ -14,6 +15,9 @@ import { MongooseModule } from '@nestjs/mongoose';
       { name: Nivel3.name, schema: Nivel3Schema },
       { name: Nivel4.name, schema: Nivel4Schema },
       { name: Contaminante.name, schema: ContaminanteSchema },
+      { name: Report.name, schema: ReportSchema },
+      { name: ReportItem.name, schema: ReportItemSchema },
+      { name: ReportResult.name, schema: ReportResultSchema },
     ]),
   ],
   providers: [ReportResolver, ReportService]

@@ -29,25 +29,73 @@ export class ReportService {
     const startDate = new Date();
 
     const { ok, data, msg } = await this.integrationService.parseExcel();
-    if(!ok) 
+    if (!ok)
       throw new Error(msg);
     console.log(data.length);
     console.log(data[0]);
     const calculatedResult = data.map(async (entry, index) => {
-      if(index>0)
+
+      try {
+        console.log(`evaluating index: ${index}`);
+        console.log(await this.nivel1Model.findOne({ name: entry.Alcance }))
+
+        // // TODO: ocupar FOREACH, PARA EVITAR CONDICION DE CARRERA QUE EVITA QUE LO DE ABAJO FUNCIONE CORRECTAMENTE
+
+
+        // const { _id: nivel1ID } = await this.nivel1Model.findOne({ name: entry.Alcance });
+        // console.log(nivel1ID);
+        // const { _id: nivel2ID } = await this.nivel2Model.findOne({
+        //   where: {
+        //     $and: [
+        //       { name: entry['Nivel 2'] },
+        //       { nivel1: {$eq: nivel1ID} },
+        //     ],
+        //   }
+        // });
+        // console.log(nivel2ID);
+        // const { _id: nivel3ID } = await this.nivel3Model.findOne({
+        //   where: {
+        //     $and: [
+        //       { name: entry['Nivel 3'] },
+        //       { nivel2: nivel2ID },
+        //     ],
+        //   }
+        // });
+
+        // const { _id: nivel4ID } = await this.nivel4Model.findOne({
+        //   where: {
+        //     $and: [
+        //       { name: entry['Nivel 4'] },
+        //       { nivel3: nivel3ID },
+        //       { nivel2: nivel2ID },
+        //     ],
+        //   }
+        // });
+
+        // const contaminantes = await this.contaminanteModel.find({
+        //   where: {
+        //     $and: [
+        //       { nivel4: nivel4ID },
+        //       { nivel3: nivel3ID },
+        //       { nivel2: nivel2ID },
+        //     ],
+        //   }
+        // });
+
+        // console.log(
+          // nivel1ID,
+          // nivel2ID,
+          // nivel3ID,
+          // nivel4ID,
+          // { contaminantesLength: contaminantes.length, ...contaminantes },
+        // )
+
         return;
 
-      const emisionGEI = entry['EmisionesGEI(tCO2e)'];
-      const { Alcance, FuenteDeConsumo, SubfuenteDeConsumo, Area, Unidades, ConsumoAnnual } = entry;
-
-      const {_id: nivel1ID} = await this.nivel1Model.findOne({ name: `Alcance ${ Alcance }` });
-      const resultLevel2 = await this.nivel2Model.find({ nivel1: nivel1ID });
-      console.log(resultLevel2);
-
-      
-
-
-
+      } catch (err) {
+        //Handle this error somehow in the future, this is when the search fail
+        return;
+      }
     });
 
     return {
