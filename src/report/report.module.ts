@@ -5,6 +5,7 @@ import { IntegrationModule } from 'src/integration/integration.module';
 import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema } from 'src/niveles/schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Report, ReportItem, ReportItemSchema, ReportResult, ReportResultSchema, ReportSchema } from './schema';
+import { Mutex, Semaphore } from 'async-mutex';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { Report, ReportItem, ReportItemSchema, ReportResult, ReportResultSchema,
       { name: ReportResult.name, schema: ReportResultSchema },
     ]),
   ],
-  providers: [ReportResolver, ReportService]
+  providers: [ReportResolver, ReportService, Mutex, Semaphore]
 })
 export class ReportModule {  }
