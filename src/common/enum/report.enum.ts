@@ -3,3 +3,9 @@ export enum SourceData {
     integration = 'integration',
     webForm = 'form',
 }
+
+export enum StatusData {
+    processing = 'Processing',
+    completed = 'Completed',
+    error = 'Failed',
+}

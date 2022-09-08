@@ -13,8 +13,13 @@ export class ReportResult extends Document {
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Contaminante' })
     contaminante: Contaminante
 
+    //valor calculado en `kgCO2eq`
     @Prop({ required: true })
     value: number
+
+    //deberia ser siempre `kgCO2eq`
+    @Prop({ required: true })
+    unidadMedida: string
 
     @Prop({ required: true })
     periodo: string

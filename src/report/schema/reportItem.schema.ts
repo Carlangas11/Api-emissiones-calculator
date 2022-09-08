@@ -25,8 +25,12 @@ export class ReportItem extends Document {
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'ReportResult' })
     result: ReportResult[]
 
+    //valor indicado en excel
     @Prop({ required: true })
     value: number
+
+    @Prop({ required: true })
+    unidadMedida: string
 
     @Prop({ required: true })
     periodo: string
