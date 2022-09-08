@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { IntegrationModule } from '@src/integration/integration.module';
 import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema } from '@src/niveles/schema';
 
-import { Report, ReportItem, ReportItemSchema, ReportResult, ReportResultSchema, ReportSchema } from './schema';
+import { Report, ReportItem, ReportItemError, ReportItemErrorSchema, ReportItemSchema, ReportResult, ReportResultSchema, ReportSchema } from './schema';
 import { Mutex, Semaphore } from 'async-mutex';
 
 @Module({
@@ -19,6 +19,7 @@ import { Mutex, Semaphore } from 'async-mutex';
       { name: Contaminante.name, schema: ContaminanteSchema },
       { name: Report.name, schema: ReportSchema },
       { name: ReportItem.name, schema: ReportItemSchema },
+      { name: ReportItemError.name, schema: ReportItemErrorSchema },
       { name: ReportResult.name, schema: ReportResultSchema },
     ]),
   ],

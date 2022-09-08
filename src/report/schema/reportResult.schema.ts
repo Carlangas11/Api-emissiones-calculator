@@ -8,27 +8,27 @@ import { ReportItem } from '.'
 export class ReportResult extends Document {
 
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'ReportItem' })
-    reportItem: ReportItem
+    reportItem: ReportItem;
 
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Contaminante' })
-    contaminante: Contaminante
+    contaminante: Contaminante;
 
     //valor calculado en `kgCO2eq`
     @Prop({ required: true })
-    value: number
+    value: number;
 
     //deberia ser siempre `kgCO2eq`
     @Prop({ required: true })
-    unidadMedida: string
+    unidadMedida: string;
 
     @Prop({ required: true })
-    periodo: string
+    periodo: string;
 
     @Prop({ required: true, default: () => new Date() })
-    createdAt: Date
+    createdAt: Date;
 
     @Prop({ required: false, default: null })
-    updatedAt: Date
+    updatedAt: Date;
 }
 
 export const ReportResultSchema = SchemaFactory.createForClass(ReportResult)
