@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { hashPassword } from 'src/common/helpers/encripter'
+import { hashPassword } from '@helpers'
 import { FindUserInput, UserInput, UpdateUserInput } from './input/users.input'
 import { UserModel } from './model/users.model'
 import { User } from './schema/users.schema'
