@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common'
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql'
-import { JwtAuthGuard } from 'src/auth/guards'
-import { ParseMongObjectIdPipe, ParseMongoIdPipe } from 'src/common/pipes'
+import { JwtAuthGuard } from '@src/auth/guards'
+import { ParseMongObjectIdPipe, ParseMongoIdPipe } from '@src/common/pipes'
 
 import { ContaminanteInput, UpdateContaminanteInput } from './input'
 import { contaminanteModel, ResultUnion } from './model'

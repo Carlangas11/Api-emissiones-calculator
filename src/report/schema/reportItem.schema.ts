@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document, Schema as SchemaMongoose } from 'mongoose'
-import { Nivel1, Nivel2, Nivel3, Nivel4 } from 'src/niveles/schema'
+import { Nivel1, Nivel2, Nivel3, Nivel4 } from '@src/niveles/schema'
 import { Report, ReportResult } from '.'
 
 
