@@ -5,7 +5,7 @@ import { SourceData, StatusData } from '@enum';
 @Schema()
 export class Report extends Document {
     @Prop({ required: true, unique: true })
-    name: string
+    name: string;
 
     @Prop({ required: true, type: String, enum: SourceData })
     source: SourceData;
@@ -14,10 +14,10 @@ export class Report extends Document {
     status: StatusData;
 
     @Prop({ required: true, default: () => new Date() })
-    createdAt: Date
+    createdAt: Date;
 
     @Prop({ required: false, default: null })
-    updatedAt: Date
+    updatedAt: Date;
 }
 
 export const ReportSchema = SchemaFactory.createForClass(Report)
