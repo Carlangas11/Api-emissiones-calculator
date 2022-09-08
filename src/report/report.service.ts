@@ -7,8 +7,8 @@ import { Mutex, MutexInterface, Semaphore, SemaphoreInterface, withTimeout } fro
 import { Report } from './entities/report.entity';
 import { CreateReportInput } from './dto/create-report.input';
 import { UpdateReportInput } from './dto/update-report.input';
-import { IntegrationService } from 'src/integration/integration.service';
-import { Contaminante, Nivel1, Nivel2, Nivel3, Nivel4 } from 'src/niveles/schema';
+import { IntegrationService } from '@src/integration/integration.service';
+import { Contaminante, Nivel1, Nivel2, Nivel3, Nivel4 } from '@src/niveles/schema';
 
 @Injectable()
 export class ReportService {
@@ -139,6 +139,8 @@ export class ReportService {
       //     return;
       //   }
       // });
+
+
 
     return {
       ok: true,

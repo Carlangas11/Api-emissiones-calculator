@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { ReportResolver } from './report.resolver';
-import { IntegrationModule } from 'src/integration/integration.module';
-import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema } from 'src/niveles/schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { IntegrationModule } from '@src/integration/integration.module';
+import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema } from '@src/niveles/schema';
+
 import { Report, ReportItem, ReportItemSchema, ReportResult, ReportResultSchema, ReportSchema } from './schema';
 import { Mutex, Semaphore } from 'async-mutex';
 
