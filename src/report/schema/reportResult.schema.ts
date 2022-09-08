@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document, Schema as SchemaMongoose } from 'mongoose'
-import { Contaminante } from 'src/niveles/schema'
+import { Contaminante } from '@src/niveles/schema'
 import { ReportItem } from '.'
 
 
