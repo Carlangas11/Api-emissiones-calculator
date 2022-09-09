@@ -77,6 +77,19 @@ type Report {
   endDate: DateTime!
 }
 
+type reportItemsReponse {
+  nivel1: String!
+  nivel2: String
+  nivel3: String
+  nivel4: String
+  consumption: Float!
+  costCenter: String!
+  fe: Float!
+  measureUnitFe: String
+  emissions: Float!
+  contaminantes: [String!]!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -85,6 +98,7 @@ type Query {
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
   getContaminantes(pagination: Float!): contaminanteResponse!
+  getReportItems: [reportItemsReponse!]!
   generateReport: Report!
 }
 
