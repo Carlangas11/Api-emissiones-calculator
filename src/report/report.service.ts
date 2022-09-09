@@ -7,6 +7,7 @@ import { IntegrationService } from '@src/integration/integration.service';
 import { IFormatoExcelImportacion } from '@src/integration/interface/result.interface';
 import { IContaminanteDataResponse, IValidateLineError } from '@interfaces';
 import { Report, ReportItem, ReportResult } from './schema';
+import { SourceData, StatusData } from '@enum'
 import { UpdateReportInput } from './dto/update-report.input';
 import { CreateReportInput } from './dto/create-report.input';
 import { ReportItemError } from './schema/reportItemError.schema';
@@ -36,8 +37,13 @@ export class ReportService {
     const { ok, data, msg } = await this.integrationService.parseExcel();
     if (!ok)
       throw new Error(msg);
-    console.log(data.length);
-    console.log(data[0]);
+    console.log(`Total registros: `, data.length);
+
+    const reportDocument = await this.reportModel.create({
+      name: `Reporte ${startDate.toISOString()}`,
+      source: SourceData.excel,
+      status: StatusData.processing,
+    });
 
     //DONE: DONT RETURN UNTIL THE PROCESS IS COMPLETE
     for await (const entry of data) {
@@ -45,16 +51,7 @@ export class ReportService {
       const index = data.indexOf(entry);
       console.log(`Checking Line ${index + 2}`);
       // if (index > 13) break;
-      if (index > 28) break;
-
-      try {
-        await this.checkEntry(entry, index + 2);
-      }
-      catch (err: any) {
-        // await this.saveError(entry, err, index + 2)
-        console.log(err.message);
-      }
-
+      // if (index > 28) break;
 
       const resp: IContaminanteDataResponse[] = await this.contaminanteModel
         .aggregate()
@@ -65,7 +62,7 @@ export class ReportService {
           as: 'nivel2',
         })
         .match({
-          'nivel2.name': entry['Nivel 2'],
+          'nivel2.name': (!!entry['Nivel 2']) ? entry['Nivel 2'].trim() : undefined,
         })
         .lookup({
           from: 'nivel3',
@@ -74,7 +71,7 @@ export class ReportService {
           as: 'nivel3',
         })
         .match({
-          'nivel3.name': entry['Nivel 3'],
+          'nivel3.name': (!!entry['Nivel 3']) ? entry['Nivel 3'].trim() : undefined,
         })
         .lookup({
           from: 'nivel4',
@@ -83,7 +80,7 @@ export class ReportService {
           as: 'nivel4',
         })
         .match({
-          'nivel4.name': entry['Nivel 4'],
+          'nivel4.name': (!!entry['Nivel 4']) ? entry['Nivel 4'].trim() : undefined,
         })
         .lookup({
           from: 'nivel1',
@@ -92,8 +89,20 @@ export class ReportService {
           as: 'nivel1',
         })
         .match({
-          'nivel1.name': entry.Alcance,
+          'nivel1.name': (!!entry.Alcance) ? entry.Alcance.trim() : undefined,
         });
+
+      
+
+      try {
+        await this.checkEntry(entry, index + 2);
+      }
+      catch (err: any) {
+        // await this.saveError(entry, err, index + 2)
+        console.log(err.message);
+      }
+
+
 
       const contaminantes = resp.map(r => {
         const obj = {
@@ -111,15 +120,19 @@ export class ReportService {
           0,
         );
 
-      console.log('entry: ', { ...entry, totalValue, contaminantes });
+      // console.log('entry: ', { ...entry, totalValue, contaminantes });
       console.log(`Tamaño resp: ${resp.length}`);
-      console.log(`resp: `, resp);
+      // console.log(`resp: `, resp);
       console.log(`Finished Line ${index + 2}`);
     }
 
+
+    reportDocument.status = StatusData.completed;
+    await reportDocument.save();
+
     return {
       ok: true,
-      msg: 'Report process started successfully',
+      msg: 'Report finished successfully',
       startDate,
       endDate: new Date(),
     }
