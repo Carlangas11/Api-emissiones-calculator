@@ -1,5 +1,5 @@
 export type IResultEntry = {
-  Alcance: number;
+  Alcance: string;
   FuenteDeConsumo: string;
   SubfuenteDeConsumo: string;
   Area: string;
@@ -9,7 +9,7 @@ export type IResultEntry = {
 }
 
 export type IFormatoExcelImportacion = {
-  Alcance: number;
+  Alcance: string;
   'Nivel 2': string;
   'Nivel 3': string;
   'Nivel 4': string;
