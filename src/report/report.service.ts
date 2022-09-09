@@ -5,12 +5,11 @@ import { Model } from 'mongoose';
 import { Contaminante, Nivel1, Nivel2, Nivel3, Nivel4 } from '@src/niveles/schema';
 import { IntegrationService } from '@src/integration/integration.service';
 import { IFormatoExcelImportacion } from '@src/integration/interface/result.interface';
-import { IContaminanteDataResponse, IValidateLineError } from '@interfaces';
-import { Report, ReportItem, ReportResult } from './schema';
+import { IContaminante, IContaminanteDataResponse, IValidateLineError } from '@interfaces';
+import { Report, ReportItem } from './schema';
 import { SourceData, StatusData } from '@enum'
 import { UpdateReportInput } from './dto/update-report.input';
 import { CreateReportInput } from './dto/create-report.input';
-import { ReportItemError } from './schema/reportItemError.schema';
 
 
 @Injectable()
@@ -25,10 +24,10 @@ export class ReportService {
     private reportModel: Model<Report>,
     @InjectModel(ReportItem.name)
     private reportItemModel: Model<ReportItem>,
-    @InjectModel(ReportItemError.name)
-    private reportItemErrorModel: Model<ReportItemError>,
-    @InjectModel(ReportResult.name)
-    private reportResultModel: Model<ReportResult>,
+    // @InjectModel(ReportItemError.name)
+    // private reportItemErrorModel: Model<ReportItemError>,
+    // @InjectModel(ReportResult.name)
+    // private reportResultModel: Model<ReportResult>,
   ) { }
 
   async generateReport(): Promise<any> {
@@ -92,7 +91,7 @@ export class ReportService {
           'nivel1.name': (!!entry.Alcance) ? entry.Alcance.trim() : undefined,
         });
 
-      
+
 
       try {
         await this.checkEntry(entry, index + 2);
@@ -100,9 +99,8 @@ export class ReportService {
       catch (err: any) {
         // await this.saveError(entry, err, index + 2)
         console.log(err.message);
+        continue;
       }
-
-
 
       const contaminantes = resp.map(r => {
         const obj = {
@@ -120,10 +118,40 @@ export class ReportService {
           0,
         );
 
-      // console.log('entry: ', { ...entry, totalValue, contaminantes });
+      const reportItemObj: Partial<ReportItem> = {
+        report: reportDocument._id,
+        nivel1: entry.Alcance,
+        nivel2: entry['Nivel 2'],
+        value: entry.Valor,
+        period: entry.Periodo,
+        area: entry.Area,
+        factorFE: (!!entry['Factor FE']) ? entry['Factor FE'] : undefined,
+        totalValue: totalValue
+      };
+
+      // if (totalValue === 0)
+      //   return await this.reportItemModel.create(reportItemObj);
+
+      reportItemObj.nivel3 = entry['Nivel 3'];
+      reportItemObj.nivel4 = entry['Nivel 4'];
+      reportItemObj.measureUnit = entry['Unidad de Medida'];
+
+      const contaminanteRelated: Contaminante[] = [];
+
+      for await (const respuesta of resp) {
+        const contaminanteDoc = await this.contaminanteModel.findById(respuesta._id);
+        contaminanteRelated.push(contaminanteDoc._id.toString());
+      }
+      reportItemObj.contaminantes = contaminanteRelated;
+      await this.reportItemModel.create(reportItemObj);
+
+
+
+      console.log('entry: ', { ...entry, totalValue, contaminantes });
       console.log(`Tamaño resp: ${resp.length}`);
       // console.log(`resp: `, resp);
       console.log(`Finished Line ${index + 2}`);
+
     }
 
 
@@ -158,17 +186,17 @@ export class ReportService {
 
   }
 
-  async saveError(reportItem: string, err: IValidateLineError, lineNumber: number): Promise<any> {
+  // async saveError(reportItem: string, err: IValidateLineError, lineNumber: number): Promise<any> {
 
-    const { code: errorCode, message: errorMessage } = err;
-    const report = await this.reportItemErrorModel.create({
-      reportItem,
-      errorCode,
-      errorMessage,
-      lineNumber
-    });
+  //   const { code: errorCode, message: errorMessage } = err;
+  //   const report = await this.reportItemErrorModel.create({
+  //     reportItem,
+  //     errorCode,
+  //     errorMessage,
+  //     lineNumber
+  //   });
 
-    return await report.save();
-  }
+  //   return await report.save();
+  // }
 
 }

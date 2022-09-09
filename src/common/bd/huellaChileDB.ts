@@ -11,10 +11,7 @@ export const nivel2: INivel2[] = [
   { name: 'Fuentes fijas', nivel1: 'Alcance 1' },
   { name: 'Fuentes móviles', nivel1: 'Alcance 1' },
   { name: 'Adquisición de electricidad', nivel1: 'Alcance 2' },
-  {
-    name: 'Adquisición de vapor, calefacción, refrigeración y aire comprimido',
-    nivel1: 'Alcance 2',
-  },
+  { name: 'Adquisición de vapor, calefacción, refrigeración y aire comprimido', nivel1: 'Alcance 2' },
   { name: 'Pérdidas por transmisión y distribución', nivel1: 'Alcance 2' },
   { name: 'Bienes y servicios adquiridos', nivel1: 'Alcance 3' },
   { name: 'Movilización de personas', nivel1: 'Alcance 3' },
@@ -63,6 +60,9 @@ export const nivel3: INivel3[] = [
   { name: 'Medio aéreo', nivel2: 'Fuentes móviles' },
   { name: 'Medio maritimo', nivel2: 'Fuentes móviles' },
   { name: 'Medio terrestre', nivel2: 'Fuentes móviles' },
+  { name: 'Sistema Eléctrico Nacional (SEN)', nivel2: 'Adquisición de electricidad' },
+  { name: 'Sistema de Aysén (SEA)', nivel2: 'Adquisición de electricidad' },
+  { name: 'Sistema de Magallanes (SEM)', nivel2: 'Adquisición de electricidad' },
   { name: 'Sistema Eléctrico de Aysén', nivel2: 'Adquisición de electricidad' },
   {
     name: 'Sistema Eléctrico de Magallanes',
@@ -112,6 +112,7 @@ export const nivel3: INivel3[] = [
     name: 'Sistema Interconectado del Norte Grande (SING)',
     nivel2: 'Pérdidas por transmisión y distribución',
   },
+  { name: 'Alimento', nivel2: 'Bienes y servicios adquiridos' },
   { name: 'Bienes adquiridos', nivel2: 'Bienes y servicios adquiridos' },
   { name: 'Servicios adquiridos', nivel2: 'Bienes y servicios adquiridos' },
   {
@@ -386,6 +387,21 @@ export const nivel4: INivel4[] = [
   { nivel2: 'Fuentes móviles', nivel3: 'Medio terrestre', name: 'Kerosene' },
   {
     nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema Eléctrico Nacional (SEN)',
+    name: 'Promedio 2021',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema de Aysén (SEA)',
+    name: 'Promedio 2020',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema de Magallanes (SEM)',
+    name: 'Promedio 2020',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
     nivel3: 'Sistema Eléctrico de Aysén',
     name: 'Sistema Eléctrico de Aysén',
   },
@@ -543,6 +559,21 @@ export const nivel4: INivel4[] = [
     nivel2: 'Pérdidas por transmisión y distribución',
     nivel3: 'Sistema Interconectado del Norte Grande (SING)',
     name: 'Sistema Interconectado del Norte Grande (SING)',
+  },
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Alimento',
+    name: 'EWOS de Biomar',
+  },
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Bienes adquiridos',
+    name: 'ALIMENTO Skretting',
+  },
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Bienes adquiridos',
+    name: 'INSUMOS Pargua',
   },
   {
     nivel2: 'Bienes y servicios adquiridos',
@@ -3110,6 +3141,30 @@ export const contaminantes: IContaminante[] = [
   // Alcance 2
   {
     nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema Eléctrico Nacional (SEN)',
+    nivel4: 'Promedio 2021',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 390.7,
+    measureUnit: 'kgCO2eq/MWh',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema de Aysén (SEA)',
+    nivel4: 'Promedio 2020',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 724.46767,
+    measureUnit: 'kgCO2eq/MWh',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
+    nivel3: 'Sistema de Magallanes (SEM)',
+    nivel4: 'Promedio 2020',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 592.81777,
+    measureUnit: 'kgCO2eq/MWh',
+  },
+  {
+    nivel2: 'Adquisición de electricidad',
     nivel3: 'Sistema Eléctrico de Aysén',
     nivel4: 'Sistema Eléctrico de Aysén',
     name: 'Dióxido de Carbono (CO2)',
@@ -3713,6 +3768,30 @@ export const contaminantes: IContaminante[] = [
     measureUnit: 'kgCO2eq/MWh',
   },
   // Alcance 3
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Alimento',
+    nivel4: 'EWOS de Biomar',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 1.812,
+    measureUnit: 'kgCO2eq/kg',
+  },
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Bienes adquiridos',
+    nivel4: 'ALIMENTO Skretting',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 1.812,
+    measureUnit: 'kgCO2eq/kg',
+  },
+  {
+    nivel2: 'Bienes y servicios adquiridos',
+    nivel3: 'Bienes adquiridos',
+    nivel4: 'INSUMOS Pargua',
+    name: 'Dióxido de Carbono (CO2)',
+    value: 1.812,
+    measureUnit: 'kgCO2eq/kg',
+  },
   {
     nivel2: 'Bienes y servicios adquiridos',
     nivel3: 'Bienes adquiridos',
