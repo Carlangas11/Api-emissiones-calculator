@@ -9,10 +9,10 @@ import { InjectModel } from '@nestjs/mongoose'
 import { isValidObjectId, Model } from 'mongoose'
 import { setTimeout } from 'timers'
 
-import { nivel1, nivel2, nivel3, nivel4, contaminantes } from '@bd'
+import { nivel1, nivel2, nivel3, nivel4, contaminantes, measureUnits } from '@bd'
 import { IContaminante, INivel2, INivel3, INivel4 } from '@interfaces'
 import { ContaminanteInput, UpdateContaminanteInput } from './input'
-import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante } from './schema'
+import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante, MeasureUnit } from './schema'
 import { contaminanteOutput, contaminanteResponse } from './dto/contaminanteResponse.dto'
 
 @Injectable()
@@ -28,6 +28,8 @@ export class NivelesService {
     private nivel4Model: Model<Nivel4>,
     @InjectModel(Contaminante.name)
     private contaminanteModel: Model<Contaminante>,
+    @InjectModel(MeasureUnit.name)
+    private measureUnitModel: Model<MeasureUnit>,
   ) {}
 
   private readonly logger = new Logger('NivelesService')
@@ -44,6 +46,8 @@ export class NivelesService {
         return await this.seedLvl4()
       case 'contaminantes':
         return await this.seedContaminantes()
+      case 'measureUnits':
+        return await this.seedMeasureUnits()
       default:
         throw new BadRequestException('Nivel no valido')
     }
@@ -168,6 +172,21 @@ export class NivelesService {
       )
     }
     return 'Seed contaminantes working ...'
+  }
+
+  async seedMeasureUnits(): Promise<string> {
+    this.logger.log('Seeding started')
+    this.logger.log(`Seeding Unidades de medida, ${measureUnits.length} items`)
+    try {
+      await this.measureUnitModel.deleteMany({})
+      await this.measureUnitModel.insertMany(measureUnits)
+      this.logger.log(`Finished Unidades de medida`)
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error al crear semilla Unidades de medida',
+      )
+    }
+    return 'Seed Unidades de medida working ...'
   }
 
   async findAll(lvl: string): Promise<any> {
