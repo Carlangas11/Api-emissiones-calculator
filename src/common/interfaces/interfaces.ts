@@ -26,3 +26,15 @@ export interface IContaminante {
   value: number
   measureUnit: string
 }
+
+export interface IMeasureUnit {
+  magnitud: string
+  si: string
+  equivalencias: IMesureUnitsEquivalent[] 
+}
+
+export interface IMesureUnitsEquivalent {
+    name: string
+    value: number
+    alias: string[]
+}

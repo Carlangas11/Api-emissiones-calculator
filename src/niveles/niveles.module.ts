@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema} from './schema';
+import { Contaminante, ContaminanteSchema, MeasureUnit, MeasureUnitSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2Schema, Nivel3, Nivel3Schema, Nivel4, Nivel4Schema} from './schema';
 import { NivelesService } from './niveles.service';
 import { NivelesResolver } from './niveles.resolver';
 
@@ -13,6 +13,7 @@ import { NivelesResolver } from './niveles.resolver';
       { name: Nivel3.name, schema: Nivel3Schema },
       { name: Nivel4.name, schema: Nivel4Schema },
       { name: Contaminante.name, schema: ContaminanteSchema },
+      { name: MeasureUnit.name, schema: MeasureUnitSchema },
     ]),
   ],
   providers: [NivelesResolver, NivelesService],
