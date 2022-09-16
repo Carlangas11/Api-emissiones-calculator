@@ -19,3 +19,17 @@ export type IFormatoExcelImportacion = {
   Area: string;
   'Factor FE': number;
 }
+
+export type IFormatoExcelDiccionario = {
+  FuenteDeConsumo: string;
+  SubfuenteDeConsumo: string;
+  Area: string;
+  Unidades: string;
+  ConsumoAnual: string;
+  Periodo: string;
+  Nivel1: string;
+  Nivel2: string;
+  Nivel3: string;
+  Nivel4: string;
+  Magnitud: string;
+}

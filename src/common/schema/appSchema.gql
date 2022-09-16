@@ -75,6 +75,7 @@ type Report {
   msg: String!
   startDate: DateTime!
   endDate: DateTime!
+  diccionaryID: String!
 }
 
 type reportItemsReponse {
@@ -100,6 +101,7 @@ type Query {
   getContaminantes(pagination: Float!): contaminanteResponse!
   getReportItems: [reportItemsReponse!]!
   generateReport: Report!
+  generateDicionary: Report!
 }
 
 input FindUserInput {

@@ -2,7 +2,7 @@ import { IMeasureUnit } from "../interfaces";
 
 export const measureUnits: IMeasureUnit[] = [
     {
-        magnitud: "Longitud",
+        magnitud: "longitud",
         si: "m",
         equivalencias: [
             {
@@ -43,7 +43,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Área",
+        magnitud: "area",
         si: "m2",
         equivalencias: [
             {
@@ -94,7 +94,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Volumen",
+        magnitud: "volumen",
         si: "m3",
         equivalencias: [
             {
@@ -155,7 +155,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Masa",
+        magnitud: "masa",
         si: "kg",
         equivalencias: [
             {
@@ -186,7 +186,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Tiempo",
+        magnitud: "tiempo",
         si: "s",
         equivalencias: [
             {
@@ -212,7 +212,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Velocidad",
+        magnitud: "velocidad",
         si: "m/s",
         equivalencias: [
             {
@@ -258,7 +258,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Energia Electrica",
+        magnitud: "energia electrica",
         si: "kWh",
         equivalencias: [
             {
@@ -279,7 +279,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Transporte Carga",
+        magnitud: "transporte carga",
         si: "tonKm",
         equivalencias: [
             {
@@ -290,7 +290,7 @@ export const measureUnits: IMeasureUnit[] = [
         ],
     },
     {
-        magnitud: "Transporte Pasajeros",
+        magnitud: "transporte pasajeros",
         si: "kmPass",
         equivalencias: [
             {

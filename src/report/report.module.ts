@@ -7,6 +7,7 @@ import { Contaminante, ContaminanteSchema, Nivel1, Nivel1Schema, Nivel2, Nivel2S
 
 import { Report, ReportItem, ReportItemSchema, ReportSchema, Diccionario, DiccionarioItem, DiccionarioItemSchema, DiccionarioSchema } from './schema';
 import { Mutex, Semaphore } from 'async-mutex';
+import { Error, ErrorSchema } from '@common/schema/error.schema';
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { Mutex, Semaphore } from 'async-mutex';
       { name: MeasureUnit.name, schema: MeasureUnitSchema },
       { name: Diccionario.name, schema: DiccionarioSchema },
       { name: DiccionarioItem.name, schema: DiccionarioItemSchema },
+
+      { name: Error.name, schema: ErrorSchema },
     ]),
   ],
   providers: [ReportResolver, ReportService, Mutex, Semaphore]

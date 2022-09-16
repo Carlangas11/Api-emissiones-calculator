@@ -8,19 +8,23 @@ import {
   Nivel2,
   Nivel3,
   Nivel4,
+  MeasureUnit,
 } from '@src/niveles/schema'
 import { IntegrationService } from '@src/integration/integration.service'
 import { IFormatoExcelImportacion } from '@src/integration/interface/result.interface'
 import {
   IContaminante,
   IContaminanteDataResponse,
+  INivel4,
+  INivel4ModelResponse,
   IValidateLineError,
+  IError,
 } from '@interfaces'
-import { Report, ReportItem } from './schema'
-import { SourceData, StatusData } from '@enum'
-import { UpdateReportInput } from './dto/update-report.input'
-import { CreateReportInput } from './dto/create-report.input'
+import { Report, ReportItem, Diccionario, DiccionarioItem } from './schema'
+import { EErrorSource, ESourceData, EStatusData } from '@enum'
 import { reportItemsReponse } from './dto/reportItemsResponse.dto'
+import { objectHaveUndefined } from '@helpers'
+import { Error } from '@src/common/schema/error.schema'
 
 @Injectable()
 export class ReportService {
@@ -33,7 +37,23 @@ export class ReportService {
     private reportModel: Model<Report>,
     @InjectModel(ReportItem.name)
     private reportItemModel: Model<ReportItem>, // @InjectModel(ReportItemError.name) // private reportItemErrorModel: Model<ReportItemError>, // @InjectModel(ReportResult.name) // private reportResultModel: Model<ReportResult>,
-  ) {}
+
+
+
+    @InjectModel(Nivel4.name)
+    private nivel4Model: Model<Nivel4>,
+    @InjectModel(MeasureUnit.name)
+    private measureUnitModel: Model<Nivel4>,
+
+
+    @InjectModel(Diccionario.name)
+    private diccionarioModel: Model<Diccionario>,
+    @InjectModel(DiccionarioItem.name)
+    private diccionarioItemModel: Model<DiccionarioItem>,
+
+    @InjectModel(Error.name)
+    private errorModel: Model<Error>,
+  ) { }
 
   async generateReport(): Promise<any> {
     const startDate = new Date()
@@ -43,8 +63,8 @@ export class ReportService {
 
     const reportDocument = await this.reportModel.create({
       name: `Reporte ${startDate.toISOString()}`,
-      source: SourceData.excel,
-      status: StatusData.processing,
+      source: ESourceData.excel,
+      status: EStatusData.processing,
     })
 
     //DONE: DONT RETURN UNTIL THE PROCESS IS COMPLETE
@@ -158,7 +178,7 @@ export class ReportService {
       console.log(`Finished Line ${index + 2}`)
     }
 
-    reportDocument.status = StatusData.completed
+    reportDocument.status = EStatusData.completed
     await reportDocument.save()
 
     return {
@@ -259,5 +279,129 @@ export class ReportService {
     })
 
     return reportOutput
+  }
+
+
+  async generateDiccionary(): Promise<any> {
+
+    const startDate = new Date()
+    const { ok, data, msg } = await this.integrationService.parseDiccionaryExcel()
+    if (!ok) throw new Error(msg)
+    // console.log(`Total registros: `, data.length)
+
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
+    await this.diccionarioModel.deleteMany({})
+    await this.diccionarioItemModel.deleteMany({})
+    await this.errorModel.deleteMany({ source: 'diccionary' })
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
+
+    const diccionarioDocument = await this.diccionarioModel.create({
+      name: `Diccionario ${startDate.toISOString()}`
+    })
+
+    const arrayErrors: IError[] = [];
+
+    for await (const entry of data) {
+      const index = data.indexOf(entry)
+
+      // if (index !== 23) continue
+      // console.log(`Testing index ${index}`)
+
+      const resp: INivel4ModelResponse[] = await this.nivel4Model
+        .aggregate([{
+          $match: {
+            name: entry.Nivel4,
+          },
+        }])
+        .lookup({
+          from: 'nivel3',
+          localField: 'nivel3',
+          foreignField: '_id',
+          as: 'nivel3',
+        })
+        .match({
+          'nivel3.name': !!entry.Nivel3
+            ? entry.Nivel3.trim()
+            : undefined,
+        })
+        .lookup({
+          from: 'nivel2',
+          localField: 'nivel2',
+          foreignField: '_id',
+          as: 'nivel2',
+        })
+        .match({
+          'nivel2.name': !!entry.Nivel2
+            ? entry.Nivel2.trim()
+            : undefined,
+        })
+        .lookup({
+          from: 'nivel1',
+          localField: 'nivel2.nivel1',
+          foreignField: '_id',
+          as: 'nivel1',
+        })
+        .match({
+          'nivel1.name': !!entry.Nivel1
+            ? entry.Nivel1.trim()
+            : undefined,
+        })
+
+      const respMeasureUnit = await this.measureUnitModel.findOne({
+        magnitud: entry.Magnitud,
+      })
+
+      const idsFound = {
+        nivel1: resp[0]?.nivel1[0]?._id,
+        nivel2: resp[0]?.nivel2[0]?._id,
+        nivel3: resp[0]?.nivel3[0]?._id,
+        nivel4: resp[0]?._id,
+        measureUnit: respMeasureUnit._id,
+      }
+
+      if (objectHaveUndefined(idsFound)) {
+        arrayErrors.push({
+          operation: 'generateDiccionary',
+          source: EErrorSource.diccionary,
+          relatedID: diccionarioDocument._id,
+          description: `Error en el registro linea ${index + 2}, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
+          line: index + 2,
+          debugData: idsFound
+        })
+        continue
+      }
+
+      await this.diccionarioItemModel.create({
+        diccionario: diccionarioDocument._id,
+        fuenteDeConsumo: entry.FuenteDeConsumo,
+        subfuenteDeConsumo: entry.SubfuenteDeConsumo,
+        area: entry.Area,
+        unidades: entry.Unidades,
+        consumoAnual: entry[' ConsumoAnual '],
+        periodo: entry.Periodo,
+        nivel1: idsFound.nivel1,
+        nivel2: idsFound.nivel2,
+        nivel3: idsFound.nivel3,
+        nivel4: idsFound.nivel4,
+        magnitud: idsFound.measureUnit,
+      });
+
+
+    }
+
+    if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
+
+    return {
+      ok: true,
+      msg: 'Diccionary generated successfully',
+      startDate,
+      endDate: new Date(),
+      diccionaryID: diccionarioDocument._id
+    }
+
   }
 }
