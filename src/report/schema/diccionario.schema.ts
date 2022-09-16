@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document } from 'mongoose'
-import { SourceData, StatusData } from '@enum';
 
 @Schema()
 export class Diccionario extends Document {

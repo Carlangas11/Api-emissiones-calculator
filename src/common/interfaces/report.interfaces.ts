@@ -12,8 +12,8 @@ type INivel2BD = INivel2 & ICommonBD;
 type INivel3BD = INivel3 & ICommonBD;
 type INivel4BD = INivel4 & ICommonBD;
 
-export interface IContaminanteDataResponse {
-    _id: string;
+
+export interface IContaminanteDataResponse extends ICommonBD {
     name: string;
     value: number;
     measureUnit: string;
@@ -21,12 +21,17 @@ export interface IContaminanteDataResponse {
     nivel2: INivel2BD[];
     nivel3: INivel3BD[];
     nivel4: INivel4BD[];
-    updatedAt: Date | null;
-    createdAt: Date;
-    __v: number;
 }
 
 export interface IValidateLineError {
     code: number;
     message: string;
+}
+
+export interface INivel4ModelResponse extends ICommonBD {
+    name: string;
+    nivel1: INivel1BD[];
+    nivel2: INivel2BD[];
+    nivel3: INivel3BD[];
+    measureUnit: ICommonBD[];
 }

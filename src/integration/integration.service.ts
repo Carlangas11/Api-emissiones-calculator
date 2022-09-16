@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateIntegrationInput } from './dto/create-integration.input';
-import { UpdateIntegrationInput } from './dto/update-integration.input';
-import { ParseExcelResponse } from './entities/integration.entity';
 import * as XLSX from 'xlsx';
-import { IFormatoExcelImportacion } from './interface/result.interface';
+
+import { ParseExcelDiccionaryResponse, ParseExcelResponse } from './entities/integration.entity';
+import { IFormatoExcelDiccionario, IFormatoExcelImportacion } from './interface/result.interface';
 
 @Injectable()
 export class IntegrationService {
@@ -26,20 +25,38 @@ export class IntegrationService {
       }
 
     } catch (e) {
-        return {
-          ok: false,
-          msg: e.message,
-          startDate,
-          data: [],
-          endDate: new Date(),
-        }
+      return {
+        ok: false,
+        msg: e.message,
+        startDate,
+        data: [],
+        endDate: new Date(),
+      }
     }
-    
+  }
 
+  async parseDiccionaryExcel(): Promise<ParseExcelDiccionaryResponse> {
+    const startDate = new Date();
 
-    // console.log(firstRow(xlData));
-    // console.log(xlData);
+    try {
+      const workbook = XLSX.readFile('./src/common/bd/DiccionarioMultiX.xlsx');
+      const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelDiccionario[];
+      return {
+        ok: true,
+        msg: 'Excel parsed successfully',
+        data: excelData,
+        startDate,
+        endDate: new Date(),
+      }
 
-    
+    } catch (e) {
+      return {
+        ok: false,
+        msg: e.message,
+        startDate,
+        data: [],
+        endDate: new Date(),
+      }
+    }
   }
 }
