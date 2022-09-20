@@ -14,11 +14,18 @@ export class ReportResolver {
 
   @Query(() => Report)
   async generateReport() {
-    return await this.reportService.generateReport()
+    return await this.reportService.generateExcelMultiXReport()
+  }
+
+  @Query(() => Report)
+  async generateOldReport() {
+    return await this.reportService.generateOldReport()
   }
 
   @Query(() => Report)
   async generateDicionary() {
     return await this.reportService.generateDiccionary()
   }
+
+  
 }

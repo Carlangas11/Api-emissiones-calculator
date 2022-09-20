@@ -359,7 +359,7 @@ export const nivel4: INivel4[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio aéreo',
-    name: 'Petroleo 2 (Diesel)',
+    name: 'Petróleo 2 (Diésel)',
   },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio aéreo', name: 'Gas licuado' },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio aéreo', name: 'Gas natural' },
@@ -372,14 +372,14 @@ export const nivel4: INivel4[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio maritimo',
-    name: 'Petroleo 2 (Diesel)',
+    name: 'Petróleo 2 (Diésel)',
   },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio maritimo', name: 'Gas licuado' },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio maritimo', name: 'Gas natural' },
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio terrestre',
-    name: 'Petroleo 2 (Diesel)',
+    name: 'Petróleo 2 (Diésel)',
   },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio terrestre', name: 'Gas licuado' },
   { nivel2: 'Fuentes móviles', nivel3: 'Medio terrestre', name: 'Gas natural' },
@@ -2733,7 +2733,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio aéreo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Dióxido de Carbono (CO2)',
     value: 2698.5459,
     measureUnit: 'kgCO2eq/m3',
@@ -2741,7 +2741,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio aéreo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Metano (CH4)',
     value: 3.9768,
     measureUnit: 'kgCO2eq/m3',
@@ -2749,7 +2749,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio aéreo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Óxido Nitroso (N2O)',
     value: 37.6376,
     measureUnit: 'kgCO2eq/m3',
@@ -2941,7 +2941,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio maritimo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Dióxido de Carbono (CO2)',
     value: 2698.5459,
     measureUnit: 'kgCO2eq/m3',
@@ -2949,7 +2949,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio maritimo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Metano (CH4)',
     value: 3.9768,
     measureUnit: 'kgCO2eq/m3',
@@ -2957,7 +2957,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio maritimo',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Óxido Nitroso (N2O)',
     value: 37.6376,
     measureUnit: 'kgCO2eq/m3',
@@ -3021,7 +3021,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio terrestre',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Dióxido de Carbono (CO2)',
     value: 2698.5459,
     measureUnit: 'kgCO2eq/m3',
@@ -3029,7 +3029,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio terrestre',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Metano (CH4)',
     value: 3.9768,
     measureUnit: 'kgCO2eq/m3',
@@ -3037,7 +3037,7 @@ export const contaminantes: IContaminante[] = [
   {
     nivel2: 'Fuentes móviles',
     nivel3: 'Medio terrestre',
-    nivel4: 'Petroleo 2 (Diesel)',
+    nivel4: 'Petróleo 2 (Diésel)',
     name: 'Óxido Nitroso (N2O)',
     value: 37.6376,
     measureUnit: 'kgCO2eq/m3',

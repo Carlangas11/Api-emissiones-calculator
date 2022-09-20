@@ -3,6 +3,7 @@ import { Document, Schema as SchemaMongoose } from 'mongoose'
 // import { Contaminante } from '@src/niveles/schema'
 import { Report } from '.'
 import { Nivel1, Nivel2, Nivel3, Nivel4, MeasureUnit } from '@src/niveles/schema';
+import { Contaminante } from '@src/niveles/schema'
 
 @Schema()
 export class DiccionarioItem extends Document {
@@ -39,6 +40,10 @@ export class DiccionarioItem extends Document {
 
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Nivel4' })
     nivel4: Nivel4;
+
+    // @Prop({ type: SchemaMongoose.Types.Array, ref: 'Contaminante'})
+    @Prop([{ type: SchemaMongoose.Types.ObjectId, ref: 'Contaminante'}])
+    contaminantes: Contaminante[];
 
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'MeasureUnit' })
     magnitud: MeasureUnit
