@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
@@ -59,6 +59,8 @@ export class ReportService {
     private errorModel: Model<Error>,
   ) { }
 
+  private readonly logger = new Logger('ReportService')
+
   async generateExcelMultiXReport(): Promise<any> {
 
     const { ok, data, msg } = await this.integrationService.parseExcelMultiX()
@@ -70,6 +72,7 @@ export class ReportService {
 
   async generateReport(data: IFormatoExcelMultiXImportacion[]): Promise<any> {
 
+    this.logger.log('Generando reporte')
     const startDate = new Date()
     const arrayErrors: IError[] = [];
     ///////////////////////////////////////////////////////////////
@@ -91,8 +94,8 @@ export class ReportService {
       const index = data.indexOf(entry)
       // if (index != 23) continue
 
-      console.log(`Checking Line ${index + 2}`)
-      console.log(entry)
+      // console.log(`Checking Line ${index + 2}`)
+      // console.log(entry)
 
       const searchObj = {
         fuenteDeConsumo: entry['Fuente de Consumo'],
@@ -107,7 +110,7 @@ export class ReportService {
         .populate({ path: 'contaminantes', select: '_id name value measureUnit' })
         .populate('magnitud')
         // console.log(diccionaryItem.contaminantes)
-        console.log({ diccionaryItem })
+        // console.log({ diccionaryItem })
 
         //control error
         if(!diccionaryItem) {
@@ -137,7 +140,7 @@ export class ReportService {
           value: entry[' Consumo Anual '],
           period: diccionaryItem.periodo,
           area: entry.Area,
-          factorFE: !!entry['Factor FE'] ? entry['Factor FE'] : undefined,
+          factorFE: !!diccionaryItem.factorFE ? diccionaryItem.factorFE : undefined,
           totalValue
         }
 
@@ -152,6 +155,10 @@ export class ReportService {
 
     if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
 
+    reportDocument.status = EStatusData.completed
+    await reportDocument.save()
+
+    this.logger.log('Reporte generado')
     return {
       ok: true,
       msg: 'Report finished successfully',
@@ -357,7 +364,7 @@ export class ReportService {
       'Nivel4',
     ];
 
-    console.log(entry)
+    // console.log(entry)
     
     //All optimal data is present
     if (optimalRawData.every(key => entry.hasOwnProperty(key))) return
@@ -422,6 +429,7 @@ export class ReportService {
 
   async generateDiccionary(): Promise<any> {
 
+    this.logger.log('Generando diccionario')
     const startDate = new Date()
     const { ok, data, msg } = await this.integrationService.parseDiccionaryExcel()
     if (!ok) throw new Error(msg)
@@ -446,7 +454,7 @@ export class ReportService {
 
       const index = data.indexOf(entry)
       
-      // if (index != 14) continue;
+      // if (index != 23) continue;
 
       const resp: IContaminanteDataResponse[] = await this.contaminanteModel
         .aggregate()
@@ -509,12 +517,13 @@ export class ReportService {
         nivel1: '',
         nivel2: '',
       }
+      let factorFE: number = undefined
 
       if (objectHaveUndefined(idsFound)) {
 
-        console.log(`reading Line ${index + 2} of diccionary xlsx`)
-        console.log(entry.Nivel1, entry.Nivel2, entry.Nivel3, entry.Nivel4)
-        console.log(idsFound)
+        // console.log(`reading Line ${index + 2} of diccionary xlsx`)
+        // console.log(entry.Nivel1, entry.Nivel2, entry.Nivel3, entry.Nivel4)
+        // console.log(idsFound)
 
         try {
           await this.checkEntry(entry, index + 2)
@@ -523,6 +532,8 @@ export class ReportService {
           const nivel2Result = await this.nivel2Model.findOne({ name: entry.Nivel2, nivel1: nivel1Result._id})
           idsSearched.nivel1 = nivel1Result._id
           idsSearched.nivel2 = nivel2Result._id
+          factorFE = entry.InvestigacionPropia
+
 
         } catch (err: any) {
           arrayErrors.push({
@@ -552,12 +563,14 @@ export class ReportService {
         nivel4: idsFound.nivel4,
         contaminantes: resp.map(c => c._id),
         magnitud: idsFound.measureUnit,
+        factorFE,
       });
 
     }
 
     if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
 
+    this.logger.log('Diccionario generado')
     return {
       ok: true,
       msg: 'Diccionary generated successfully',

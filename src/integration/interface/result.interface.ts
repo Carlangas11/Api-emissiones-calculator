@@ -27,8 +27,6 @@ export type IFormatoExcelMultiXImportacion = {
   'Area': string;
   'Unidades': string;
   'Consumo Anual': number;
-  'Emisiones GEI (tCO2e)': number;
-  'Factor FE': number;
 }
 
 export type IFormatoExcelDiccionario = {
@@ -43,4 +41,5 @@ export type IFormatoExcelDiccionario = {
   Nivel3: string;
   Nivel4: string;
   Magnitud: string;
+  InvestigacionPropia: number;
 }
