@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { Document, Schema as SchemaMongoose } from 'mongoose'
 import { Contaminante } from '@src/niveles/schema'
-import { Report } from '.'
+import { Report, DiccionarioItem } from '.'
 
 
 @Schema()
@@ -9,6 +9,9 @@ export class ReportItem extends Document {
     
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'Report' })
     report: Report;
+
+    @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'DiccionarioItem' })
+    diccionaryItem: DiccionarioItem;
 
     @Prop({ required: true })
     nivel1: string;
@@ -40,7 +43,8 @@ export class ReportItem extends Document {
     @Prop()
     totalValue?: number;
 
-    @Prop({ type: SchemaMongoose.Types.Array, ref: 'Contaminante'})
+    // @Prop({ type: SchemaMongoose.Types.Array, ref: 'Contaminante'})
+    @Prop([{ type: SchemaMongoose.Types.ObjectId, ref: 'Contaminante'}])
     contaminantes: Contaminante[];
 
     @Prop({ required: true, default: () => new Date() })

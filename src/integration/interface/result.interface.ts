@@ -20,6 +20,17 @@ export type IFormatoExcelImportacion = {
   'Factor FE': number;
 }
 
+export type IFormatoExcelMultiXImportacion = {
+  Alcance: string;
+  'Fuente de Consumo': string;
+  'Subfuente de Consumo': string;
+  'Area': string;
+  'Unidades': string;
+  'Consumo Anual': number;
+  'Emisiones GEI (tCO2e)': number;
+  'Factor FE': number;
+}
+
 export type IFormatoExcelDiccionario = {
   FuenteDeConsumo: string;
   SubfuenteDeConsumo: string;

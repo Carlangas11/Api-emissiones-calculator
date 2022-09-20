@@ -1,5 +1,5 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { IFormatoExcelDiccionario, IFormatoExcelImportacion } from '../interface/result.interface';
+import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from '../interface/result.interface';
 
 @ObjectType()
 export class Integration {
@@ -23,6 +23,25 @@ export class ParseExcelResponse {
 
   @Field()
   data: Array<IFormatoExcelImportacion>;
+}
+
+
+@ObjectType()
+export class ParseExcelMultiXResponse {
+  @Field()
+  ok: boolean;
+
+  @Field()
+  msg: string;
+
+  @Field()
+  startDate: Date;
+
+  @Field()
+  endDate: Date;
+
+  @Field()
+  data: Array<IFormatoExcelMultiXImportacion>;
 }
 
 

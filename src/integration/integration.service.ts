@@ -1,11 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import * as XLSX from 'xlsx';
 
-import { ParseExcelDiccionaryResponse, ParseExcelResponse } from './entities/integration.entity';
-import { IFormatoExcelDiccionario, IFormatoExcelImportacion } from './interface/result.interface';
+import { ParseExcelDiccionaryResponse, ParseExcelResponse, ParseExcelMultiXResponse } from './entities/integration.entity';
+import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from './interface/result.interface';
 
 @Injectable()
 export class IntegrationService {
+
+  async parseExcelMultiX(): Promise<ParseExcelMultiXResponse> {
+    const startDate = new Date();
+
+    try {
+      const workbook = XLSX.readFile('./src/common/bd/CasoMultiX.xlsx');
+      const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelMultiXImportacion[];
+
+      return {
+        ok: true,
+        msg: 'Excel parsed successfully',
+        data: excelData,
+        startDate,
+        endDate: new Date(),
+      }
+
+    } catch (e) {
+      return {
+        ok: false,
+        msg: e.message,
+        startDate,
+        data: [],
+        endDate: new Date(),
+      }
+    }
+  }
 
   async parseExcel(): Promise<ParseExcelResponse> {
     const startDate = new Date();

@@ -11,7 +11,7 @@ import {
   MeasureUnit,
 } from '@src/niveles/schema'
 import { IntegrationService } from '@src/integration/integration.service'
-import { IFormatoExcelImportacion } from '@src/integration/interface/result.interface'
+import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from '@src/integration/interface/result.interface'
 import {
   IContaminante,
   IContaminanteDataResponse,
@@ -40,6 +40,10 @@ export class ReportService {
 
 
 
+    @InjectModel(Nivel1.name)
+    private nivel1Model: Model<Nivel1>,
+    @InjectModel(Nivel2.name)
+    private nivel2Model: Model<Nivel2>,
     @InjectModel(Nivel4.name)
     private nivel4Model: Model<Nivel4>,
     @InjectModel(MeasureUnit.name)
@@ -55,11 +59,123 @@ export class ReportService {
     private errorModel: Model<Error>,
   ) { }
 
-  async generateReport(): Promise<any> {
+  async generateExcelMultiXReport(): Promise<any> {
+
+    const { ok, data, msg } = await this.integrationService.parseExcelMultiX()
+    if (!ok) throw new Error(msg)
+
+
+    return await this.generateReport(data)
+  }
+
+  async generateReport(data: IFormatoExcelMultiXImportacion[]): Promise<any> {
+
+    const startDate = new Date()
+    const arrayErrors: IError[] = [];
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
+    await this.reportModel.deleteMany({})
+    await this.reportItemModel.deleteMany({})
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
+
+    const reportDocument = await this.reportModel.create({
+      name: `Reporte ${startDate.toISOString()}`,
+      source: ESourceData.excel,
+      status: EStatusData.processing,
+    })
+
+    for await (const entry of data) {
+      const index = data.indexOf(entry)
+      // if (index != 23) continue
+
+      console.log(`Checking Line ${index + 2}`)
+      console.log(entry)
+
+      const searchObj = {
+        fuenteDeConsumo: entry['Fuente de Consumo'],
+        subfuenteDeConsumo: entry['Subfuente de Consumo'],
+        area: entry['Area'],
+      }
+      const diccionaryItem = await this.diccionarioItemModel.findOne(searchObj)
+        .populate({ path: 'nivel1', select: '_id name' })
+        .populate({ path: 'nivel2', select: '_id name' })
+        .populate({ path: 'nivel3', select: '_id name' })
+        .populate({ path: 'nivel4', select: '_id name' })
+        .populate({ path: 'contaminantes', select: '_id name value measureUnit' })
+        .populate('magnitud')
+        // console.log(diccionaryItem.contaminantes)
+        console.log({ diccionaryItem })
+
+        //control error
+        if(!diccionaryItem) {
+          arrayErrors.push({
+            operation: 'reportDocument',
+            source: EErrorSource.report,
+            relatedID: reportDocument._id,
+            description: `No se encontró en diccionario la linea ${index + 2} de .xlsx importado`,
+            line: index + 2,
+            debugData: searchObj
+          })
+          continue
+        }
+
+        const totalValue = diccionaryItem.contaminantes
+        .map(cont => cont.value)
+        .reduce(
+          (previousValue, currentValue) => previousValue + currentValue,
+          0,
+        )
+
+        const reportItemObj: Partial<ReportItem> = {
+          report: reportDocument._id,
+          diccionaryItem: diccionaryItem._id,
+          nivel1: diccionaryItem.nivel1.name,
+          nivel2: diccionaryItem.nivel2.name,
+          value: entry[' Consumo Anual '],
+          period: diccionaryItem.periodo,
+          area: entry.Area,
+          factorFE: !!entry['Factor FE'] ? entry['Factor FE'] : undefined,
+          totalValue
+        }
+
+        reportItemObj.nivel3 = !!diccionaryItem.nivel3 ? diccionaryItem.nivel3.name : undefined
+        reportItemObj.nivel4 = !!diccionaryItem.nivel4 ? diccionaryItem.nivel4.name : undefined
+        reportItemObj.measureUnit = entry.Unidades
+        reportItemObj.contaminantes = diccionaryItem.contaminantes
+
+        await this.reportItemModel.create(reportItemObj)
+    }
+
+
+    if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
+
+    return {
+      ok: true,
+      msg: 'Report finished successfully',
+      startDate,
+      endDate: new Date(),
+    }
+
+  }
+
+  //TODO: GENERATE INSERT IN REPORT ITEM
+  async generateOldReport(): Promise<any> {
     const startDate = new Date()
     const { ok, data, msg } = await this.integrationService.parseExcel()
     if (!ok) throw new Error(msg)
     console.log(`Total registros: `, data.length)
+
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
+    await this.reportModel.deleteMany({})
+    await this.reportItemModel.deleteMany({})
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    ///////////////////////////////////////////////////////////////
 
     const reportDocument = await this.reportModel.create({
       name: `Reporte ${startDate.toISOString()}`,
@@ -120,7 +236,7 @@ export class ReportService {
         })
 
       try {
-        await this.checkEntry(entry, index + 2)
+        await this.checkEntryOld(entry, index + 2)
       } catch (err: any) {
         // await this.saveError(entry, err, index + 2)
         console.log(err.message)
@@ -189,7 +305,7 @@ export class ReportService {
     }
   }
 
-  async checkEntry(
+  async checkEntryOld(
     entry: IFormatoExcelImportacion,
     index: number,
   ): Promise<void | IValidateLineError> {
@@ -222,19 +338,41 @@ export class ReportService {
     }
   }
 
-  // async saveError(reportItem: string, err: IValidateLineError, lineNumber: number): Promise<any> {
+  async checkEntry(entry: IFormatoExcelDiccionario, index: number):Promise<void | IValidateLineError >{
+    const minimalData = [
+      'Alcance',
+      'FuenteDeConsumo',
+      'SubfuenteDeConsumo',
+      'Area',
+      'Unidades',
+      ' ConsumoAnual ',
+      'Periodo',
+      'Nivel1',
+      'Nivel2',
+      'Magnitud',
+    ];
+    const optimalRawData = [
+      ...minimalData,
+      'Nivel3',
+      'Nivel4',
+    ];
 
-  //   const { code: errorCode, message: errorMessage } = err;
-  //   const report = await this.reportItemErrorModel.create({
-  //     reportItem,
-  //     errorCode,
-  //     errorMessage,
-  //     lineNumber
-  //   });
+    console.log(entry)
+    
+    //All optimal data is present
+    if (optimalRawData.every(key => entry.hasOwnProperty(key))) return
 
-  //   return await report.save();
-  // }
+    //All minimal data is present
+    if (minimalData.every(key => entry.hasOwnProperty(key))) return
 
+    //error the line is not valid, dont process it
+    throw {
+      code: 400,
+      message: `Excel Line ${index} is missing data`,
+    }
+  }
+
+  //TODO: GENERATE CALCULATION FOR EACH REPORT ITEM
   async getReportItems(): Promise<reportItemsReponse[]> {
     const report = await this.reportItemModel
       .find()
@@ -287,7 +425,6 @@ export class ReportService {
     const startDate = new Date()
     const { ok, data, msg } = await this.integrationService.parseDiccionaryExcel()
     if (!ok) throw new Error(msg)
-    // console.log(`Total registros: `, data.length)
 
     ///////////////////////////////////////////////////////////////
     // BORRAR ESTO PARA PRODUCCION / QA                          //       
@@ -306,28 +443,13 @@ export class ReportService {
     const arrayErrors: IError[] = [];
 
     for await (const entry of data) {
+
       const index = data.indexOf(entry)
+      
+      // if (index != 14) continue;
 
-      // if (index !== 23) continue
-      // console.log(`Testing index ${index}`)
-
-      const resp: INivel4ModelResponse[] = await this.nivel4Model
-        .aggregate([{
-          $match: {
-            name: entry.Nivel4,
-          },
-        }])
-        .lookup({
-          from: 'nivel3',
-          localField: 'nivel3',
-          foreignField: '_id',
-          as: 'nivel3',
-        })
-        .match({
-          'nivel3.name': !!entry.Nivel3
-            ? entry.Nivel3.trim()
-            : undefined,
-        })
+      const resp: IContaminanteDataResponse[] = await this.contaminanteModel
+        .aggregate()
         .lookup({
           from: 'nivel2',
           localField: 'nivel2',
@@ -340,15 +462,35 @@ export class ReportService {
             : undefined,
         })
         .lookup({
+          from: 'nivel3',
+          localField: 'nivel3',
+          foreignField: '_id',
+          as: 'nivel3',
+        })
+        .match({
+          'nivel3.name': !!entry.Nivel3
+            ? entry.Nivel3.trim()
+            : undefined,
+        })
+        .lookup({
+          from: 'nivel4',
+          localField: 'nivel4',
+          foreignField: '_id',
+          as: 'nivel4',
+        })
+        .match({
+          'nivel4.name': !!entry.Nivel4
+            ? entry.Nivel4.trim()
+            : undefined,
+        })
+        .lookup({
           from: 'nivel1',
           localField: 'nivel2.nivel1',
           foreignField: '_id',
           as: 'nivel1',
         })
         .match({
-          'nivel1.name': !!entry.Nivel1
-            ? entry.Nivel1.trim()
-            : undefined,
+          'nivel1.name': !!entry.Nivel1 ? entry.Nivel1.trim() : undefined,
         })
 
       const respMeasureUnit = await this.measureUnitModel.findOne({
@@ -359,20 +501,41 @@ export class ReportService {
         nivel1: resp[0]?.nivel1[0]?._id,
         nivel2: resp[0]?.nivel2[0]?._id,
         nivel3: resp[0]?.nivel3[0]?._id,
-        nivel4: resp[0]?._id,
+        nivel4: resp[0]?.nivel4[0]?._id,
         measureUnit: respMeasureUnit._id,
       }
 
+      const idsSearched = {
+        nivel1: '',
+        nivel2: '',
+      }
+
       if (objectHaveUndefined(idsFound)) {
-        arrayErrors.push({
-          operation: 'generateDiccionary',
-          source: EErrorSource.diccionary,
-          relatedID: diccionarioDocument._id,
-          description: `Error en el registro linea ${index + 2}, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
-          line: index + 2,
-          debugData: idsFound
-        })
-        continue
+
+        console.log(`reading Line ${index + 2} of diccionary xlsx`)
+        console.log(entry.Nivel1, entry.Nivel2, entry.Nivel3, entry.Nivel4)
+        console.log(idsFound)
+
+        try {
+          await this.checkEntry(entry, index + 2)
+
+          const nivel1Result = await this.nivel1Model.findOne({ name: entry.Nivel1 })
+          const nivel2Result = await this.nivel2Model.findOne({ name: entry.Nivel2, nivel1: nivel1Result._id})
+          idsSearched.nivel1 = nivel1Result._id
+          idsSearched.nivel2 = nivel2Result._id
+
+        } catch (err: any) {
+          arrayErrors.push({
+            operation: 'generateDiccionary',
+            source: EErrorSource.diccionary,
+            relatedID: diccionarioDocument._id,
+            description: `Error en el registro linea ${index + 2}, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
+            line: index + 2,
+            debugData: idsFound
+          })
+          continue
+        }
+
       }
 
       await this.diccionarioItemModel.create({
@@ -383,13 +546,13 @@ export class ReportService {
         unidades: entry.Unidades,
         consumoAnual: entry[' ConsumoAnual '],
         periodo: entry.Periodo,
-        nivel1: idsFound.nivel1,
-        nivel2: idsFound.nivel2,
+        nivel1: idsFound.nivel1 ? idsFound.nivel1 : idsSearched.nivel1,
+        nivel2: idsFound.nivel2 ? idsFound.nivel2 : idsSearched.nivel2,
         nivel3: idsFound.nivel3,
         nivel4: idsFound.nivel4,
+        contaminantes: resp.map(c => c._id),
         magnitud: idsFound.measureUnit,
       });
-
 
     }
 
