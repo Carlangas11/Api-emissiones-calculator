@@ -38,7 +38,7 @@ export class ReportItem extends Document {
     area: string;
 
     @Prop()
-    factorFE: number;
+    factorFE?: number;
 
     @Prop()
     totalValue?: number;
