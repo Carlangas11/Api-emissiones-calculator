@@ -48,6 +48,9 @@ export class DiccionarioItem extends Document {
     @Prop({ type: SchemaMongoose.Types.ObjectId, ref: 'MeasureUnit' })
     magnitud: MeasureUnit
 
+    @Prop({ required: false })
+    factorFE: number;
+
     @Prop({ required: true, default: () => new Date() })
     createdAt: Date;
 
