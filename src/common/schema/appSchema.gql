@@ -101,6 +101,7 @@ type Query {
   getContaminantes(pagination: Float!): contaminanteResponse!
   getReportItems: [reportItemsReponse!]!
   generateReport: Report!
+  generateOldReport: Report!
   generateDicionary: Report!
 }
 
