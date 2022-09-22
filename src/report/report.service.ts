@@ -109,47 +109,47 @@ export class ReportService {
         .populate({ path: 'nivel4', select: '_id name' })
         .populate({ path: 'contaminantes', select: '_id name value measureUnit' })
         .populate('magnitud')
-        // console.log(diccionaryItem.contaminantes)
-        // console.log({ diccionaryItem })
+      // console.log(diccionaryItem.contaminantes)
+      // console.log({ diccionaryItem })
 
-        //control error
-        if(!diccionaryItem) {
-          arrayErrors.push({
-            operation: 'reportDocument',
-            source: EErrorSource.report,
-            relatedID: reportDocument._id,
-            description: `No se encontró en diccionario la linea ${index + 2} de .xlsx importado`,
-            line: index + 2,
-            debugData: searchObj
-          })
-          continue
-        }
+      //control error
+      if (!diccionaryItem) {
+        arrayErrors.push({
+          operation: 'reportDocument',
+          source: EErrorSource.report,
+          relatedID: reportDocument._id,
+          description: `No se encontró en diccionario la linea ${index + 2} de .xlsx importado`,
+          line: index + 2,
+          debugData: searchObj
+        })
+        continue
+      }
 
-        const totalValue = diccionaryItem.contaminantes
+      const totalValue = diccionaryItem.contaminantes
         .map(cont => cont.value)
         .reduce(
           (previousValue, currentValue) => previousValue + currentValue,
           0,
         )
 
-        const reportItemObj: Partial<ReportItem> = {
-          report: reportDocument._id,
-          diccionaryItem: diccionaryItem._id,
-          nivel1: diccionaryItem.nivel1.name,
-          nivel2: diccionaryItem.nivel2.name,
-          value: entry[' Consumo Anual '],
-          period: diccionaryItem.periodo,
-          area: entry.Area,
-          factorFE: !!diccionaryItem.factorFE ? diccionaryItem.factorFE : undefined,
-          totalValue
-        }
+      const reportItemObj: Partial<ReportItem> = {
+        report: reportDocument._id,
+        diccionaryItem: diccionaryItem._id,
+        nivel1: diccionaryItem.nivel1.name,
+        nivel2: diccionaryItem.nivel2.name,
+        value: entry[' Consumo Anual '],
+        period: diccionaryItem.periodo,
+        area: entry.Area,
+        factorFE: !!diccionaryItem.factorFE ? diccionaryItem.factorFE : undefined,
+        totalValue
+      }
 
-        reportItemObj.nivel3 = !!diccionaryItem.nivel3 ? diccionaryItem.nivel3.name : undefined
-        reportItemObj.nivel4 = !!diccionaryItem.nivel4 ? diccionaryItem.nivel4.name : undefined
-        reportItemObj.measureUnit = entry.Unidades
-        reportItemObj.contaminantes = diccionaryItem.contaminantes
+      reportItemObj.nivel3 = !!diccionaryItem.nivel3 ? diccionaryItem.nivel3.name : undefined
+      reportItemObj.nivel4 = !!diccionaryItem.nivel4 ? diccionaryItem.nivel4.name : undefined
+      reportItemObj.measureUnit = entry.Unidades
+      reportItemObj.contaminantes = diccionaryItem.contaminantes
 
-        await this.reportItemModel.create(reportItemObj)
+      await this.reportItemModel.create(reportItemObj)
     }
 
 
@@ -168,184 +168,7 @@ export class ReportService {
 
   }
 
-  //TODO: GENERATE INSERT IN REPORT ITEM
-  async generateOldReport(): Promise<any> {
-    const startDate = new Date()
-    const { ok, data, msg } = await this.integrationService.parseExcel()
-    if (!ok) throw new Error(msg)
-    console.log(`Total registros: `, data.length)
-
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
-    ///////////////////////////////////////////////////////////////
-    await this.reportModel.deleteMany({})
-    await this.reportItemModel.deleteMany({})
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
-    ///////////////////////////////////////////////////////////////
-
-    const reportDocument = await this.reportModel.create({
-      name: `Reporte ${startDate.toISOString()}`,
-      source: ESourceData.excel,
-      status: EStatusData.processing,
-    })
-
-    //DONE: DONT RETURN UNTIL THE PROCESS IS COMPLETE
-    for await (const entry of data) {
-      const index = data.indexOf(entry)
-      console.log(`Checking Line ${index + 2}`)
-      // if (index > 13) break;
-      // if (index > 28) break;
-
-      const resp: IContaminanteDataResponse[] = await this.contaminanteModel
-        .aggregate()
-        .lookup({
-          from: 'nivel2',
-          localField: 'nivel2',
-          foreignField: '_id',
-          as: 'nivel2',
-        })
-        .match({
-          'nivel2.name': !!entry['Nivel 2']
-            ? entry['Nivel 2'].trim()
-            : undefined,
-        })
-        .lookup({
-          from: 'nivel3',
-          localField: 'nivel3',
-          foreignField: '_id',
-          as: 'nivel3',
-        })
-        .match({
-          'nivel3.name': !!entry['Nivel 3']
-            ? entry['Nivel 3'].trim()
-            : undefined,
-        })
-        .lookup({
-          from: 'nivel4',
-          localField: 'nivel4',
-          foreignField: '_id',
-          as: 'nivel4',
-        })
-        .match({
-          'nivel4.name': !!entry['Nivel 4']
-            ? entry['Nivel 4'].trim()
-            : undefined,
-        })
-        .lookup({
-          from: 'nivel1',
-          localField: 'nivel2.nivel1',
-          foreignField: '_id',
-          as: 'nivel1',
-        })
-        .match({
-          'nivel1.name': !!entry.Alcance ? entry.Alcance.trim() : undefined,
-        })
-
-      try {
-        await this.checkEntryOld(entry, index + 2)
-      } catch (err: any) {
-        // await this.saveError(entry, err, index + 2)
-        console.log(err.message)
-        continue
-      }
-
-      const contaminantes = resp.map(r => {
-        const obj = {
-          _id: r._id,
-          name: r.name,
-          value: r.value,
-        }
-        return obj
-      })
-
-      const totalValue = contaminantes
-        .map(cont => cont.value)
-        .reduce(
-          (previousValue, currentValue) => previousValue + currentValue,
-          0,
-        )
-
-      const reportItemObj: Partial<ReportItem> = {
-        report: reportDocument._id,
-        nivel1: entry.Alcance,
-        nivel2: entry['Nivel 2'],
-        value: entry.Valor,
-        period: entry.Periodo,
-        area: entry.Area,
-        factorFE: !!entry['Factor FE'] ? entry['Factor FE'] : undefined,
-        totalValue: totalValue,
-      }
-
-      // if (totalValue === 0)
-      //   return await this.reportItemModel.create(reportItemObj);
-
-      reportItemObj.nivel3 = entry['Nivel 3']
-      reportItemObj.nivel4 = entry['Nivel 4']
-      reportItemObj.measureUnit = entry['Unidad de Medida']
-
-      const contaminanteRelated: Contaminante[] = []
-
-      for await (const respuesta of resp) {
-        const contaminanteDoc = await this.contaminanteModel.findById(
-          respuesta._id,
-        )
-        contaminanteRelated.push(contaminanteDoc._id.toString())
-      }
-      reportItemObj.contaminantes = contaminanteRelated
-      await this.reportItemModel.create(reportItemObj)
-
-      console.log('entry: ', { ...entry, totalValue, contaminantes })
-      console.log(`Tamaño resp: ${resp.length}`)
-      // console.log(`resp: `, resp);
-      console.log(`Finished Line ${index + 2}`)
-    }
-
-    reportDocument.status = EStatusData.completed
-    await reportDocument.save()
-
-    return {
-      ok: true,
-      msg: 'Report finished successfully',
-      startDate,
-      endDate: new Date(),
-    }
-  }
-
-  async checkEntryOld(
-    entry: IFormatoExcelImportacion,
-    index: number,
-  ): Promise<void | IValidateLineError> {
-    const minimalData = [
-      'Alcance',
-      'Nivel 2',
-      'Valor',
-      'Periodo',
-      'Area',
-      'Factor FE',
-    ]
-    const optimalRawData = [
-      ...minimalData,
-      'Nivel 3',
-      'Nivel 4',
-      'Unidad de medida',
-    ]
-    const optimalData = optimalRawData.filter(key => key !== 'Factor FE')
-
-    //All optimal data is present
-    if (optimalData.every(key => entry.hasOwnProperty(key))) return
-
-    //All minimal data is present
-    if (minimalData.every(key => entry.hasOwnProperty(key))) return
-
-    //error the line is not valid, dont process it
-    throw {
-      code: 400,
-      message: `Excel Line ${index} is missing data`,
-    }
-  }
-
-  async checkEntry(entry: IFormatoExcelDiccionario, index: number):Promise<void | IValidateLineError >{
+  async checkEntry(entry: IFormatoExcelDiccionario, index: number): Promise<void | IValidateLineError> {
     const minimalData = [
       'Alcance',
       'FuenteDeConsumo',
@@ -365,7 +188,7 @@ export class ReportService {
     ];
 
     // console.log(entry)
-    
+
     //All optimal data is present
     if (optimalRawData.every(key => entry.hasOwnProperty(key))) return
 
@@ -380,52 +203,79 @@ export class ReportService {
   }
 
   //TODO: GENERATE CALCULATION FOR EACH REPORT ITEM
-  async getReportItems(): Promise<reportItemsReponse[]> {
+  async getReportItems(reportId: string): Promise<reportItemsReponse[]> {
     const report = await this.reportItemModel
-      .find()
+      .find({ report: reportId, _id: '63292903532588731745d8b5' })
       .populate({ path: 'contaminantes' })
+      .populate({ path: 'diccionaryItem', select: 'fuenteDeConsumo subfuenteDeConsumo' })
+
+    console.log(report.length)
 
     const reportOutput: reportItemsReponse[] = []
 
-    report.forEach(rep => {
+
+    for await (const reportItem of report) {
+
+      const index = report.indexOf(reportItem)
+      if (index != 0) continue
+
       const obj = {
-        nivel1: rep.nivel1,
-        nivel2: rep.nivel2,
-        nivel3: rep.nivel3,
-        nivel4: rep.nivel4,
-        consumption: rep.value,
-        costCenter: rep.area,
-        fe: rep.contaminantes
+        nivel1: reportItem.nivel1,
+        nivel2: reportItem.nivel2,
+        nivel3: reportItem.nivel3,
+        nivel4: reportItem.nivel4,
+        consumption: reportItem.value,
+        costCenter: reportItem.area,
+        fe: reportItem.contaminantes
           .map(cont => cont.value)
           .reduce(
             (previousValue, currentValue) => previousValue + currentValue,
             0,
           ),
-        measureUnitFe: rep.contaminantes[0]?.measureUnit,
-        contaminantes: rep.contaminantes.map(c => c.name),
+        measureUnitFe: reportItem.contaminantes[0]?.measureUnit,
+        contaminantes: reportItem.contaminantes.map(c => c.name),
       }
 
-      let emissions: number
+      console.log(obj)
+    }
+    // report.forEach(rep => {
+    //   const obj = {
+    //     nivel1: rep.nivel1,
+    //     nivel2: rep.nivel2,
+    //     nivel3: rep.nivel3,
+    //     nivel4: rep.nivel4,
+    //     consumption: rep.value,
+    //     costCenter: rep.area,
+    //     fe: rep.contaminantes
+    //       .map(cont => cont.value)
+    //       .reduce(
+    //         (previousValue, currentValue) => previousValue + currentValue,
+    //         0,
+    //       ),
+    //     measureUnitFe: rep.contaminantes[0]?.measureUnit,
+    //     contaminantes: rep.contaminantes.map(c => c.name),
+    //   }
 
-      if (rep.nivel1 === 'Alcance 1')
-        emissions = (obj.fe * obj.consumption) / 1000
-      else if (rep.nivel1 === 'Alcance 2') emissions = obj.fe * obj.consumption
-      else if (rep.nivel1 === 'Alcance 3') {
-        if (
-          rep.nivel3 === 'Alimento' ||
-          rep.nivel2 === 'Transporte de carga' ||
-          rep.nivel2 === 'Movilización de personas'
-        )
-          emissions = obj.fe * obj.consumption
-        else emissions = (obj.fe * obj.consumption) / 1000
-      }
+    //   let emissions: number
 
-      reportOutput.push({ ...obj, emissions })
-    })
+    //   if (rep.nivel1 === 'Alcance 1')
+    //     emissions = (obj.fe * obj.consumption) / 1000
+    //   else if (rep.nivel1 === 'Alcance 2') emissions = obj.fe * obj.consumption
+    //   else if (rep.nivel1 === 'Alcance 3') {
+    //     if (
+    //       rep.nivel3 === 'Alimento' ||
+    //       rep.nivel2 === 'Transporte de carga' ||
+    //       rep.nivel2 === 'Movilización de personas'
+    //     )
+    //       emissions = obj.fe * obj.consumption
+    //     else emissions = (obj.fe * obj.consumption) / 1000
+    //   }
+
+    //   reportOutput.push({ ...obj, emissions })
+    // })
 
     return reportOutput
   }
-
 
   async generateDiccionary(): Promise<any> {
 
@@ -453,7 +303,7 @@ export class ReportService {
     for await (const entry of data) {
 
       const index = data.indexOf(entry)
-      
+
       // if (index != 23) continue;
 
       const resp: IContaminanteDataResponse[] = await this.contaminanteModel
@@ -529,7 +379,7 @@ export class ReportService {
           await this.checkEntry(entry, index + 2)
 
           const nivel1Result = await this.nivel1Model.findOne({ name: entry.Nivel1 })
-          const nivel2Result = await this.nivel2Model.findOne({ name: entry.Nivel2, nivel1: nivel1Result._id})
+          const nivel2Result = await this.nivel2Model.findOne({ name: entry.Nivel2, nivel1: nivel1Result._id })
           idsSearched.nivel1 = nivel1Result._id
           idsSearched.nivel2 = nivel2Result._id
           factorFE = entry.InvestigacionPropia

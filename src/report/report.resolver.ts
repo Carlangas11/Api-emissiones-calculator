@@ -8,20 +8,15 @@ export class ReportResolver {
   constructor(private readonly reportService: ReportService) {}
 
   @Query(() => [reportItemsReponse])
-  async getReportItems(): Promise<reportItemsReponse[]> {
-    return await this.reportService.getReportItems()
+  async getReportItems(@Args('reportId') reportId: string): Promise<reportItemsReponse[]> {
+    return await this.reportService.getReportItems(reportId)
   }
 
   @Query(() => Report)
   async generateReport() {
     return await this.reportService.generateExcelMultiXReport()
   }
-
-  @Query(() => Report)
-  async generateOldReport() {
-    return await this.reportService.generateOldReport()
-  }
-
+  
   @Query(() => Report)
   async generateDicionary() {
     return await this.reportService.generateDiccionary()
