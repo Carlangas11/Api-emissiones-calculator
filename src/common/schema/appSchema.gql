@@ -91,6 +91,14 @@ type reportItemsReponse {
   contaminantes: [String!]!
 }
 
+type ReportOutPut {
+  id: String!
+  ok: Boolean!
+  msg: String!
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -100,7 +108,7 @@ type Query {
   getLevelById(id: String!): ResultUnion
   getContaminantes(pagination: Float!): contaminanteResponse!
   getReportItems(reportId: String!): [reportItemsReponse!]!
-  generateReport: Report!
+  generateReportExcel: Report!
   generateDicionary: Report!
 }
 
@@ -124,6 +132,7 @@ type Mutation {
   createContaminante(contaminanteInput: ContaminanteInput!): contaminanteModel
   updateContaminante(updateContaminanteInput: UpdateContaminanteInput!): contaminanteModel
   deleteContaminante(id: String!): contaminanteModel
+  generateReport(input: [GenerateReportInput!]!): ReportOutPut!
 }
 
 input LoginUserInput {
@@ -159,4 +168,13 @@ input UpdateContaminanteInput {
   nivel2: String
   nivel3: String
   nivel4: String
+}
+
+input GenerateReportInput {
+  consumoAnual: Float!
+  alcance: Float!
+  area: String!
+  fuenteDeConsumo: String!
+  subfuenteDeConsumo: String!
+  unidades: String!
 }

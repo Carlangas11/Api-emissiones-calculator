@@ -11,7 +11,11 @@ import {
   MeasureUnit,
 } from '@src/niveles/schema'
 import { IntegrationService } from '@src/integration/integration.service'
-import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from '@src/integration/interface/result.interface'
+import {
+  IFormatoExcelDiccionario,
+  IFormatoExcelImportacion,
+  IFormatoExcelMultiXImportacion,
+} from '@src/integration/interface/result.interface'
 import {
   IContaminante,
   IContaminanteDataResponse,
@@ -25,6 +29,8 @@ import { EErrorSource, ESourceData, EStatusData } from '@enum'
 import { reportItemsReponse } from './dto/reportItemsResponse.dto'
 import { objectHaveUndefined } from '@helpers'
 import { Error } from '@src/common/schema/error.schema'
+import { GenerateReportInput, ReportOutPut } from './dto/create-report.input'
+import { ParseExcelMultiXResponse } from '@src/integration/entities/integration.entity'
 
 @Injectable()
 export class ReportService {
@@ -38,8 +44,6 @@ export class ReportService {
     @InjectModel(ReportItem.name)
     private reportItemModel: Model<ReportItem>, // @InjectModel(ReportItemError.name) // private reportItemErrorModel: Model<ReportItemError>, // @InjectModel(ReportResult.name) // private reportResultModel: Model<ReportResult>,
 
-
-
     @InjectModel(Nivel1.name)
     private nivel1Model: Model<Nivel1>,
     @InjectModel(Nivel2.name)
@@ -49,7 +53,6 @@ export class ReportService {
     @InjectModel(MeasureUnit.name)
     private measureUnitModel: Model<Nivel4>,
 
-
     @InjectModel(Diccionario.name)
     private diccionarioModel: Model<Diccionario>,
     @InjectModel(DiccionarioItem.name)
@@ -57,135 +60,147 @@ export class ReportService {
 
     @InjectModel(Error.name)
     private errorModel: Model<Error>,
-  ) { }
+  ) {}
 
   private readonly logger = new Logger('ReportService')
 
   async generateExcelMultiXReport(): Promise<any> {
-
     const { ok, data, msg } = await this.integrationService.parseExcelMultiX()
     if (!ok) throw new Error(msg)
-
 
     return await this.generateReport(data)
   }
 
-  async generateReport(data: IFormatoExcelMultiXImportacion[]): Promise<any> {
+  async generateReport(data: GenerateReportInput[]): Promise<ReportOutPut> {
+    {
+      this.logger.log('Generando reporte')
+      const startDate = new Date()
+      const arrayErrors: IError[] = []
+      ///////////////////////////////////////////////////////////////
+      // BORRAR ESTO PARA PRODUCCION / QA                          //
+      ///////////////////////////////////////////////////////////////
+      await this.reportModel.deleteMany({})
+      await this.reportItemModel.deleteMany({})
+      ///////////////////////////////////////////////////////////////
+      // BORRAR ESTO PARA PRODUCCION / QA                          //
+      ///////////////////////////////////////////////////////////////
 
-    this.logger.log('Generando reporte')
-    const startDate = new Date()
-    const arrayErrors: IError[] = [];
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
-    ///////////////////////////////////////////////////////////////
-    await this.reportModel.deleteMany({})
-    await this.reportItemModel.deleteMany({})
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
-    ///////////////////////////////////////////////////////////////
+      const reportDocument = await this.reportModel.create({
+        name: `Reporte ${startDate.toISOString()}`,
+        source: ESourceData.excel,
+        status: EStatusData.processing,
+      })
 
-    const reportDocument = await this.reportModel.create({
-      name: `Reporte ${startDate.toISOString()}`,
-      source: ESourceData.excel,
-      status: EStatusData.processing,
-    })
+      for await (const entry of data) {
+        const index = data.indexOf(entry)
+        // if (index != 23) continue
 
-    for await (const entry of data) {
-      const index = data.indexOf(entry)
-      // if (index != 23) continue
+        // console.log(`Checking Line ${index + 2}`)
+        console.log(entry)
 
-      // console.log(`Checking Line ${index + 2}`)
-      // console.log(entry)
+        const searchObj = {
+          fuenteDeConsumo: entry.fuenteDeConsumo,
+          subfuenteDeConsumo: entry.subfuenteDeConsumo,
+          area: entry.area,
+        }
+        const diccionaryItem = await this.diccionarioItemModel
+          .findOne(searchObj)
+          .populate({ path: 'nivel1', select: '_id name' })
+          .populate({ path: 'nivel2', select: '_id name' })
+          .populate({ path: 'nivel3', select: '_id name' })
+          .populate({ path: 'nivel4', select: '_id name' })
+          .populate({
+            path: 'contaminantes',
+            select: '_id name value measureUnit',
+          })
+          .populate('magnitud')
+        // console.log(diccionaryItem.contaminantes)
+        console.log({ diccionaryItem })
 
-      const searchObj = {
-        fuenteDeConsumo: entry['Fuente de Consumo'],
-        subfuenteDeConsumo: entry['Subfuente de Consumo'],
-        area: entry['Area'],
+        //control error
+        if (!diccionaryItem) {
+          arrayErrors.push({
+            operation: 'reportDocument',
+            source: EErrorSource.report,
+            relatedID: reportDocument._id,
+            description: `No se encontró en diccionario la linea ${
+              index + 2
+            } de .xlsx importado`,
+            line: index + 2,
+            debugData: searchObj,
+          })
+          continue
+        }
+
+        const totalValue = diccionaryItem.contaminantes
+          .map(cont => cont.value)
+          .reduce(
+            (previousValue, currentValue) => previousValue + currentValue,
+            0,
+          )
+
+        const reportItemObj: Partial<ReportItem> = {
+          report: reportDocument._id,
+          diccionaryItem: diccionaryItem._id,
+          nivel1: diccionaryItem.nivel1.name,
+          nivel2: diccionaryItem.nivel2.name,
+          value: entry.consumoAnual,
+          period: diccionaryItem.periodo,
+          area: entry.area,
+          factorFE: !!diccionaryItem.factorFE
+            ? diccionaryItem.factorFE
+            : undefined,
+          totalValue,
+        }
+        console.log('sadsad', reportItemObj)
+
+        reportItemObj.nivel3 = !!diccionaryItem.nivel3
+          ? diccionaryItem.nivel3.name
+          : undefined
+        reportItemObj.nivel4 = !!diccionaryItem.nivel4
+          ? diccionaryItem.nivel4.name
+          : undefined
+        reportItemObj.measureUnit = entry.unidades
+        reportItemObj.contaminantes = diccionaryItem.contaminantes
+
+        await this.reportItemModel.create(reportItemObj)
       }
-      const diccionaryItem = await this.diccionarioItemModel.findOne(searchObj)
-        .populate({ path: 'nivel1', select: '_id name' })
-        .populate({ path: 'nivel2', select: '_id name' })
-        .populate({ path: 'nivel3', select: '_id name' })
-        .populate({ path: 'nivel4', select: '_id name' })
-        .populate({ path: 'contaminantes', select: '_id name value measureUnit' })
-        .populate('magnitud')
-      // console.log(diccionaryItem.contaminantes)
-      // console.log({ diccionaryItem })
 
-      //control error
-      if (!diccionaryItem) {
-        arrayErrors.push({
-          operation: 'reportDocument',
-          source: EErrorSource.report,
-          relatedID: reportDocument._id,
-          description: `No se encontró en diccionario la linea ${index + 2} de .xlsx importado`,
-          line: index + 2,
-          debugData: searchObj
-        })
-        continue
+      if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
+
+      reportDocument.status = EStatusData.completed
+      const { _id } = await reportDocument.save()
+
+      this.logger.log('Reporte generado')
+      return {
+        id: _id,
+        ok: true,
+        msg: 'Report finished successfully',
+        startDate,
+        endDate: new Date(),
       }
-
-      const totalValue = diccionaryItem.contaminantes
-        .map(cont => cont.value)
-        .reduce(
-          (previousValue, currentValue) => previousValue + currentValue,
-          0,
-        )
-
-      const reportItemObj: Partial<ReportItem> = {
-        report: reportDocument._id,
-        diccionaryItem: diccionaryItem._id,
-        nivel1: diccionaryItem.nivel1.name,
-        nivel2: diccionaryItem.nivel2.name,
-        value: entry[' Consumo Anual '],
-        period: diccionaryItem.periodo,
-        area: entry.Area,
-        factorFE: !!diccionaryItem.factorFE ? diccionaryItem.factorFE : undefined,
-        totalValue
-      }
-
-      reportItemObj.nivel3 = !!diccionaryItem.nivel3 ? diccionaryItem.nivel3.name : undefined
-      reportItemObj.nivel4 = !!diccionaryItem.nivel4 ? diccionaryItem.nivel4.name : undefined
-      reportItemObj.measureUnit = entry.Unidades
-      reportItemObj.contaminantes = diccionaryItem.contaminantes
-
-      await this.reportItemModel.create(reportItemObj)
     }
-
-
-    if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
-
-    reportDocument.status = EStatusData.completed
-    await reportDocument.save()
-
-    this.logger.log('Reporte generado')
-    return {
-      ok: true,
-      msg: 'Report finished successfully',
-      startDate,
-      endDate: new Date(),
-    }
-
   }
 
-  async checkEntry(entry: IFormatoExcelDiccionario, index: number): Promise<void | IValidateLineError> {
+  //TODO: GENERATE INSERT IN REPORT ITEM
+
+  async checkEntry(
+    entry: IFormatoExcelDiccionario,
+    index: number,
+  ): Promise<void | IValidateLineError> {
     const minimalData = [
-      'Alcance',
-      'FuenteDeConsumo',
-      'SubfuenteDeConsumo',
-      'Area',
-      'Unidades',
-      ' ConsumoAnual ',
-      'Periodo',
+      'alcance',
+      'fuenteDeConsumo',
+      'subfuenteDeConsumo',
+      'area',
+      'unidades',
+      'consumoAnual',
+      'periodo',
       'Nivel1',
       'Nivel2',
       'Magnitud',
-    ];
-    const optimalRawData = [
-      ...minimalData,
-      'Nivel3',
-      'Nivel4',
-    ];
+    ]
+    const optimalRawData = [...minimalData, 'Nivel3', 'Nivel4']
 
     // console.log(entry)
 
@@ -207,15 +222,16 @@ export class ReportService {
     const report = await this.reportItemModel
       .find({ report: reportId, _id: '63292903532588731745d8b5' })
       .populate({ path: 'contaminantes' })
-      .populate({ path: 'diccionaryItem', select: 'fuenteDeConsumo subfuenteDeConsumo' })
+      .populate({
+        path: 'diccionaryItem',
+        select: 'fuenteDeConsumo subfuenteDeConsumo',
+      })
 
     console.log(report.length)
 
     const reportOutput: reportItemsReponse[] = []
 
-
     for await (const reportItem of report) {
-
       const index = report.indexOf(reportItem)
       if (index != 0) continue
 
@@ -278,34 +294,33 @@ export class ReportService {
   }
 
   async generateDiccionary(): Promise<any> {
-
     this.logger.log('Generando diccionario')
     const startDate = new Date()
-    const { ok, data, msg } = await this.integrationService.parseDiccionaryExcel()
+    const { ok, data, msg } =
+      await this.integrationService.parseDiccionaryExcel()
     if (!ok) throw new Error(msg)
 
     ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    // BORRAR ESTO PARA PRODUCCION / QA                          //
     ///////////////////////////////////////////////////////////////
     await this.diccionarioModel.deleteMany({})
     await this.diccionarioItemModel.deleteMany({})
     await this.errorModel.deleteMany({ source: 'diccionary' })
     ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //       
+    // BORRAR ESTO PARA PRODUCCION / QA                          //
     ///////////////////////////////////////////////////////////////
 
     const diccionarioDocument = await this.diccionarioModel.create({
-      name: `Diccionario ${startDate.toISOString()}`
+      name: `Diccionario ${startDate.toISOString()}`,
     })
 
-    const arrayErrors: IError[] = [];
+    const arrayErrors: IError[] = []
 
     for await (const entry of data) {
-
       const index = data.indexOf(entry)
 
-      // if (index != 23) continue;
-
+      // if (index != 10) continue
+      // console.log('sadasd', entry)
       const resp: IContaminanteDataResponse[] = await this.contaminanteModel
         .aggregate()
         .lookup({
@@ -315,9 +330,7 @@ export class ReportService {
           as: 'nivel2',
         })
         .match({
-          'nivel2.name': !!entry.Nivel2
-            ? entry.Nivel2.trim()
-            : undefined,
+          'nivel2.name': !!entry.Nivel2 ? entry.Nivel2.trim() : undefined,
         })
         .lookup({
           from: 'nivel3',
@@ -326,9 +339,7 @@ export class ReportService {
           as: 'nivel3',
         })
         .match({
-          'nivel3.name': !!entry.Nivel3
-            ? entry.Nivel3.trim()
-            : undefined,
+          'nivel3.name': !!entry.Nivel3 ? entry.Nivel3.trim() : undefined,
         })
         .lookup({
           from: 'nivel4',
@@ -337,9 +348,7 @@ export class ReportService {
           as: 'nivel4',
         })
         .match({
-          'nivel4.name': !!entry.Nivel4
-            ? entry.Nivel4.trim()
-            : undefined,
+          'nivel4.name': !!entry.Nivel4 ? entry.Nivel4.trim() : undefined,
         })
         .lookup({
           from: 'nivel1',
@@ -370,7 +379,6 @@ export class ReportService {
       let factorFE: number = undefined
 
       if (objectHaveUndefined(idsFound)) {
-
         // console.log(`reading Line ${index + 2} of diccionary xlsx`)
         // console.log(entry.Nivel1, entry.Nivel2, entry.Nivel3, entry.Nivel4)
         // console.log(idsFound)
@@ -378,35 +386,39 @@ export class ReportService {
         try {
           await this.checkEntry(entry, index + 2)
 
-          const nivel1Result = await this.nivel1Model.findOne({ name: entry.Nivel1 })
-          const nivel2Result = await this.nivel2Model.findOne({ name: entry.Nivel2, nivel1: nivel1Result._id })
+          const nivel1Result = await this.nivel1Model.findOne({
+            name: entry.Nivel1,
+          })
+          const nivel2Result = await this.nivel2Model.findOne({
+            name: entry.Nivel2,
+            nivel1: nivel1Result._id,
+          })
           idsSearched.nivel1 = nivel1Result._id
           idsSearched.nivel2 = nivel2Result._id
           factorFE = entry.InvestigacionPropia
-
-
         } catch (err: any) {
           arrayErrors.push({
             operation: 'generateDiccionary',
             source: EErrorSource.diccionary,
             relatedID: diccionarioDocument._id,
-            description: `Error en el registro linea ${index + 2}, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
+            description: `Error en el registro linea ${
+              index + 2
+            }, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
             line: index + 2,
-            debugData: idsFound
+            debugData: idsFound,
           })
           continue
         }
-
       }
 
       await this.diccionarioItemModel.create({
         diccionario: diccionarioDocument._id,
-        fuenteDeConsumo: entry.FuenteDeConsumo,
-        subfuenteDeConsumo: entry.SubfuenteDeConsumo,
-        area: entry.Area,
-        unidades: entry.Unidades,
-        consumoAnual: entry[' ConsumoAnual '],
-        periodo: entry.Periodo,
+        fuenteDeConsumo: entry.fuenteDeConsumo,
+        subfuenteDeConsumo: entry.subfuenteDeConsumo,
+        area: entry.area,
+        unidades: entry.unidades,
+        consumoAnual: entry.consumoAnual,
+        periodo: entry.periodo,
         nivel1: idsFound.nivel1 ? idsFound.nivel1 : idsSearched.nivel1,
         nivel2: idsFound.nivel2 ? idsFound.nivel2 : idsSearched.nivel2,
         nivel3: idsFound.nivel3,
@@ -414,8 +426,7 @@ export class ReportService {
         contaminantes: resp.map(c => c._id),
         magnitud: idsFound.measureUnit,
         factorFE,
-      });
-
+      })
     }
 
     if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
@@ -426,8 +437,7 @@ export class ReportService {
       msg: 'Diccionary generated successfully',
       startDate,
       endDate: new Date(),
-      diccionaryID: diccionarioDocument._id
+      diccionaryID: diccionarioDocument._id,
     }
-
   }
 }
