@@ -99,9 +99,8 @@ type Query {
   getAllLevel(lvl: String!): [ResultUnion!]
   getLevelById(id: String!): ResultUnion
   getContaminantes(pagination: Float!): contaminanteResponse!
-  getReportItems: [reportItemsReponse!]!
+  getReportItems(reportId: String!): [reportItemsReponse!]!
   generateReport: Report!
-  generateOldReport: Report!
   generateDicionary: Report!
 }
 
