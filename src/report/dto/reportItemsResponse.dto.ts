@@ -1,34 +1,59 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 
 @ObjectType()
+export class contaminantesDto {
+  @Field()
+  name: string;
+  @Field()
+  value: number;
+  @Field()
+  measureUnit: string;
+  @Field()
+  emission: number;
+  @Field()
+  emissionUnit: string;
+}
+
+@ObjectType()
 export class reportItemsReponse {
   @Field()
   nivel1: string
 
   @Field({ nullable: true })
-  nivel2: string
+  nivel2?: string
 
   @Field({ nullable: true })
-  nivel3: string
+  nivel3?: string
 
   @Field({ nullable: true })
-  nivel4: string
+  nivel4?: string
 
   @Field()
   consumption: number
 
   @Field()
+  consumptionUnit: string
+
+  @Field()
   costCenter: string
 
   @Field()
-  fe: number
+  period: string
 
-  @Field({ nullable: true })
+  @Field()
+  totalFe: number
+
+  @Field()
   measureUnitFe: string
 
   @Field()
-  emissions: number
+  totalEmission: number
 
-  @Field(() => [String])
-  contaminantes: string[]
+  @Field()
+  totalEmissionUnit: string
+
+  @Field(() => [contaminantesDto], { nullable: true })
+  contaminantes?: contaminantesDto[]
 }
+
+

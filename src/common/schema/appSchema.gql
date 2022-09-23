@@ -76,6 +76,15 @@ type Report {
   startDate: DateTime!
   endDate: DateTime!
   diccionaryID: String!
+  reportID: String!
+}
+
+type contaminantesDto {
+  name: String!
+  value: Float!
+  measureUnit: String!
+  emission: Float!
+  emissionUnit: String!
 }
 
 type reportItemsReponse {
@@ -84,11 +93,14 @@ type reportItemsReponse {
   nivel3: String
   nivel4: String
   consumption: Float!
+  consumptionUnit: String!
   costCenter: String!
-  fe: Float!
-  measureUnitFe: String
-  emissions: Float!
-  contaminantes: [String!]!
+  period: String!
+  totalFe: Float!
+  measureUnitFe: String!
+  totalEmission: Float!
+  totalEmissionUnit: String!
+  contaminantes: [contaminantesDto!]
 }
 
 type Query {
