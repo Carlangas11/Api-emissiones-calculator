@@ -18,5 +18,8 @@ export class Report {
   @Field()
   @IsOptional()
   diccionaryID?: string;
-  
+
+  @Field()
+  @IsOptional()
+  reportID?: string;
 }
