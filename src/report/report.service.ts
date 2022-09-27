@@ -152,7 +152,6 @@ export class ReportService {
           : undefined,
         totalValue,
       }
-      console.log('sadsad', reportItemObj)
 
       reportItemObj.nivel3 = !!diccionaryItem.nivel3
         ? diccionaryItem.nivel3.name
