@@ -1,64 +1,67 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from '../interface/result.interface';
+import { ObjectType, Field, Int } from '@nestjs/graphql'
+import { GenerateReportInput } from '@src/report/dto/create-report.input'
+import {
+  IFormatoExcelDiccionario,
+  IFormatoExcelImportacion,
+  IFormatoExcelMultiXImportacion,
+} from '../interface/result.interface'
 
 @ObjectType()
 export class Integration {
   @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number;
+  exampleField: number
 }
 
 @ObjectType()
 export class ParseExcelResponse {
   @Field()
-  ok: boolean;
+  ok: boolean
 
   @Field()
-  msg: string;
+  msg: string
 
   @Field()
-  startDate: Date;
+  startDate: Date
 
   @Field()
-  endDate: Date;
+  endDate: Date
 
   @Field()
-  data: Array<IFormatoExcelImportacion>;
+  data: Array<IFormatoExcelImportacion>
 }
-
 
 @ObjectType()
 export class ParseExcelMultiXResponse {
   @Field()
-  ok: boolean;
+  ok: boolean
 
   @Field()
-  msg: string;
+  msg: string
 
   @Field()
-  startDate: Date;
+  startDate: Date
 
   @Field()
-  endDate: Date;
+  endDate: Date
 
   @Field()
-  data: Array<IFormatoExcelMultiXImportacion>;
+  data: Array<GenerateReportInput>
 }
-
 
 @ObjectType()
 export class ParseExcelDiccionaryResponse {
   @Field()
-  ok: boolean;
+  ok: boolean
 
   @Field()
-  msg: string;
+  msg: string
 
   @Field()
-  startDate: Date;
+  startDate: Date
 
   @Field()
-  endDate: Date;
+  endDate: Date
 
   @Field()
-  data: Array<IFormatoExcelDiccionario>;
+  data: Array<IFormatoExcelDiccionario>
 }

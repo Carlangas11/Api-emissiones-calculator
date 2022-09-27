@@ -1,18 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import * as XLSX from 'xlsx';
+import { Injectable } from '@nestjs/common'
+import { GenerateReportInput } from '@src/report/dto/create-report.input'
+import * as XLSX from 'xlsx'
 
-import { ParseExcelDiccionaryResponse, ParseExcelResponse, ParseExcelMultiXResponse } from './entities/integration.entity';
-import { IFormatoExcelDiccionario, IFormatoExcelImportacion, IFormatoExcelMultiXImportacion } from './interface/result.interface';
+import {
+  ParseExcelDiccionaryResponse,
+  ParseExcelResponse,
+  ParseExcelMultiXResponse,
+} from './entities/integration.entity'
+import {
+  IFormatoExcelDiccionario,
+  IFormatoExcelImportacion,
+} from './interface/result.interface'
 
 @Injectable()
 export class IntegrationService {
-
   async parseExcelMultiX(): Promise<ParseExcelMultiXResponse> {
-    const startDate = new Date();
+    const startDate = new Date()
 
     try {
-      const workbook = XLSX.readFile('./src/common/bd/CasoMultiX.xlsx');
-      const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelMultiXImportacion[];
+      const workbook = XLSX.readFile('./src/common/bd/CasoMultiX.xlsx')
+      const excelData = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        { raw: true },
+      ) as GenerateReportInput[]
 
       return {
         ok: true,
@@ -21,7 +31,6 @@ export class IntegrationService {
         startDate,
         endDate: new Date(),
       }
-
     } catch (e) {
       return {
         ok: false,
@@ -34,13 +43,18 @@ export class IntegrationService {
   }
 
   async parseExcel(): Promise<ParseExcelResponse> {
-    const startDate = new Date();
+    const startDate = new Date()
 
     try {
       // const workbook = XLSX.readFile('./src/integration/data/CasoMultiX.xlsx');
-      const workbook = XLSX.readFile('./src/integration/data/FormatoExcelImportacion.xlsx');
+      const workbook = XLSX.readFile(
+        './src/integration/data/FormatoExcelImportacion.xlsx',
+      )
       // const sheet_name_list = workbook.SheetNames;
-      const xlData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelImportacion[];
+      const xlData = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        { raw: true },
+      ) as IFormatoExcelImportacion[]
 
       return {
         ok: true,
@@ -49,7 +63,6 @@ export class IntegrationService {
         startDate,
         endDate: new Date(),
       }
-
     } catch (e) {
       return {
         ok: false,
@@ -62,11 +75,14 @@ export class IntegrationService {
   }
 
   async parseDiccionaryExcel(): Promise<ParseExcelDiccionaryResponse> {
-    const startDate = new Date();
+    const startDate = new Date()
 
     try {
-      const workbook = XLSX.readFile('./src/common/bd/DiccionarioMultiX.xlsx');
-      const excelData = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { raw: true }) as IFormatoExcelDiccionario[];
+      const workbook = XLSX.readFile('./src/common/bd/DiccionarioMultiX.xlsx')
+      const excelData = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        { raw: true },
+      ) as IFormatoExcelDiccionario[]
       return {
         ok: true,
         msg: 'Excel parsed successfully',
@@ -74,7 +90,6 @@ export class IntegrationService {
         startDate,
         endDate: new Date(),
       }
-
     } catch (e) {
       return {
         ok: false,

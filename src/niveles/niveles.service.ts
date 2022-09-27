@@ -9,11 +9,28 @@ import { InjectModel } from '@nestjs/mongoose'
 import { isValidObjectId, Model } from 'mongoose'
 import { setTimeout } from 'timers'
 
-import { nivel1, nivel2, nivel3, nivel4, contaminantes, measureUnits } from '@bd'
+import {
+  nivel1,
+  nivel2,
+  nivel3,
+  nivel4,
+  contaminantes,
+  measureUnits,
+} from '@bd'
 import { IContaminante, INivel2, INivel3, INivel4 } from '@interfaces'
 import { ContaminanteInput, UpdateContaminanteInput } from './input'
-import { Nivel1, Nivel2, Nivel3, Nivel4, Contaminante, MeasureUnit } from './schema'
-import { contaminanteOutput, contaminanteResponse } from './dto/contaminanteResponse.dto'
+import {
+  Nivel1,
+  Nivel2,
+  Nivel3,
+  Nivel4,
+  Contaminante,
+  MeasureUnit,
+} from './schema'
+import {
+  contaminanteOutput,
+  contaminanteResponse,
+} from './dto/contaminanteResponse.dto'
 
 @Injectable()
 export class NivelesService {

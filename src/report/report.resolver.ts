@@ -2,6 +2,8 @@ import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql'
 import { ReportService } from './report.service'
 import { Report } from './entities/report.entity'
 import { reportItemsReponse } from './dto/reportItemsResponse.dto'
+import { GenerateReportInput, ReportOutPut } from './dto/create-report.input'
+import { ParseExcelMultiXResponse } from '@src/integration/entities/integration.entity'
 
 @Resolver()
 export class ReportResolver {
@@ -13,7 +15,7 @@ export class ReportResolver {
   }
 
   @Query(() => Report)
-  async generateReport() {
+  async generateReportExcel() {
     return await this.reportService.generateExcelMultiXReport()
   }
   
@@ -22,5 +24,11 @@ export class ReportResolver {
     return await this.reportService.generateDiccionary()
   }
 
-  
+  @Mutation(() => ReportOutPut)
+  async generateReport(
+    @Args({ name: 'input', type: () => [GenerateReportInput] })
+    input: GenerateReportInput[],
+  ): Promise<ReportOutPut> {
+    return await this.reportService.generateReport(input)
+  }
 }
