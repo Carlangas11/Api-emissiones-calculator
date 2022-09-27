@@ -23,6 +23,7 @@ import {
   INivel4ModelResponse,
   IValidateLineError,
   IError,
+  IEquivalencia,
 } from '@interfaces'
 import { Report, ReportItem, Diccionario, DiccionarioItem } from './schema'
 import { EErrorSource, ESourceData, EStatusData } from '@enum'
@@ -72,113 +73,111 @@ export class ReportService {
   }
 
   async generateReport(data: GenerateReportInput[]): Promise<ReportOutPut> {
-    {
-      this.logger.log('Generando reporte')
-      const startDate = new Date()
-      const arrayErrors: IError[] = []
-      ///////////////////////////////////////////////////////////////
-      // BORRAR ESTO PARA PRODUCCION / QA                          //
-      ///////////////////////////////////////////////////////////////
-      await this.reportModel.deleteMany({})
-      await this.reportItemModel.deleteMany({})
-      ///////////////////////////////////////////////////////////////
-      // BORRAR ESTO PARA PRODUCCION / QA                          //
-      ///////////////////////////////////////////////////////////////
+    this.logger.log('Generando reporte')
+    const startDate = new Date()
+    const arrayErrors: IError[] = []
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //
+    ///////////////////////////////////////////////////////////////
+    await this.reportModel.deleteMany({})
+    await this.reportItemModel.deleteMany({})
+    ///////////////////////////////////////////////////////////////
+    // BORRAR ESTO PARA PRODUCCION / QA                          //
+    ///////////////////////////////////////////////////////////////
 
-      const reportDocument = await this.reportModel.create({
-        name: `Reporte ${startDate.toISOString()}`,
-        source: ESourceData.excel,
-        status: EStatusData.processing,
-      })
+    const reportDocument = await this.reportModel.create({
+      name: `Reporte ${startDate.toISOString()}`,
+      source: ESourceData.excel,
+      status: EStatusData.processing,
+    })
 
-      for await (const entry of data) {
-        const index = data.indexOf(entry)
-        // if (index != 23) continue
+    for await (const entry of data) {
+      const index = data.indexOf(entry)
+      // if (index != 23) continue
 
-        // console.log(`Checking Line ${index + 2}`)
-        console.log(entry)
+      // console.log(`Checking Line ${index + 2}`)
+      console.log(entry)
 
-        const searchObj = {
-          fuenteDeConsumo: entry.fuenteDeConsumo,
-          subfuenteDeConsumo: entry.subfuenteDeConsumo,
-          area: entry.area,
-        }
-        const diccionaryItem = await this.diccionarioItemModel
-          .findOne(searchObj)
-          .populate({ path: 'nivel1', select: '_id name' })
-          .populate({ path: 'nivel2', select: '_id name' })
-          .populate({ path: 'nivel3', select: '_id name' })
-          .populate({ path: 'nivel4', select: '_id name' })
-          .populate({
-            path: 'contaminantes',
-            select: '_id name value measureUnit',
-          })
-          .populate('magnitud')
-        // console.log(diccionaryItem.contaminantes)
-        console.log({ diccionaryItem })
+      const searchObj = {
+        fuenteDeConsumo: entry.fuenteDeConsumo,
+        subfuenteDeConsumo: entry.subfuenteDeConsumo,
+        area: entry.area,
+      }
+      const diccionaryItem = await this.diccionarioItemModel
+        .findOne(searchObj)
+        .populate({ path: 'nivel1', select: '_id name' })
+        .populate({ path: 'nivel2', select: '_id name' })
+        .populate({ path: 'nivel3', select: '_id name' })
+        .populate({ path: 'nivel4', select: '_id name' })
+        .populate({
+          path: 'contaminantes',
+          select: '_id name value measureUnit',
+        })
+        .populate('magnitud')
+      // console.log(diccionaryItem.contaminantes)
+      console.log({ diccionaryItem })
 
-        //control error
-        if (!diccionaryItem) {
-          arrayErrors.push({
-            operation: 'reportDocument',
-            source: EErrorSource.report,
-            relatedID: reportDocument._id,
-            description: `No se encontró en diccionario la linea ${
-              index + 2
-            } de .xlsx importado`,
-            line: index + 2,
-            debugData: searchObj,
-          })
-          continue
-        }
-
-        const totalValue = diccionaryItem.contaminantes
-          .map(cont => cont.value)
-          .reduce(
-            (previousValue, currentValue) => previousValue + currentValue,
-            0,
-          )
-
-        const reportItemObj: Partial<ReportItem> = {
-          report: reportDocument._id,
-          diccionaryItem: diccionaryItem._id,
-          nivel1: diccionaryItem.nivel1.name,
-          nivel2: diccionaryItem.nivel2.name,
-          value: entry.consumoAnual,
-          period: diccionaryItem.periodo,
-          area: entry.area,
-          factorFE: !!diccionaryItem.factorFE
-            ? diccionaryItem.factorFE
-            : undefined,
-          totalValue,
-        }
-        console.log('sadsad', reportItemObj)
-
-        reportItemObj.nivel3 = !!diccionaryItem.nivel3
-          ? diccionaryItem.nivel3.name
-          : undefined
-        reportItemObj.nivel4 = !!diccionaryItem.nivel4
-          ? diccionaryItem.nivel4.name
-          : undefined
-        reportItemObj.measureUnit = entry.unidades
-        reportItemObj.contaminantes = diccionaryItem.contaminantes
-
-        await this.reportItemModel.create(reportItemObj)
+      //control error
+      if (!diccionaryItem) {
+        arrayErrors.push({
+          operation: 'reportDocument',
+          source: EErrorSource.report,
+          relatedID: reportDocument._id,
+          description: `No se encontró en diccionario la linea ${
+            index + 2
+          } de .xlsx importado`,
+          line: index + 2,
+          debugData: searchObj,
+        })
+        continue
       }
 
-      if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
+      const totalValue = diccionaryItem.contaminantes
+        .map(cont => cont.value)
+        .reduce(
+          (previousValue, currentValue) => previousValue + currentValue,
+          0,
+        )
 
-      reportDocument.status = EStatusData.completed
-      const { _id } = await reportDocument.save()
-
-      this.logger.log('Reporte generado')
-      return {
-        id: _id,
-        ok: true,
-        msg: 'Report finished successfully',
-        startDate,
-        endDate: new Date(),
+      const reportItemObj: Partial<ReportItem> = {
+        report: reportDocument._id,
+        diccionaryItem: diccionaryItem._id,
+        nivel1: diccionaryItem.nivel1.name,
+        nivel2: diccionaryItem.nivel2.name,
+        value: entry.consumoAnual,
+        period: diccionaryItem.periodo,
+        area: entry.area,
+        factorFE: !!diccionaryItem.factorFE
+          ? diccionaryItem.factorFE
+          : undefined,
+        totalValue,
       }
+      console.log('sadsad', reportItemObj)
+
+      reportItemObj.nivel3 = !!diccionaryItem.nivel3
+        ? diccionaryItem.nivel3.name
+        : undefined
+      reportItemObj.nivel4 = !!diccionaryItem.nivel4
+        ? diccionaryItem.nivel4.name
+        : undefined
+      reportItemObj.measureUnit = entry.unidades
+      reportItemObj.contaminantes = diccionaryItem.contaminantes
+
+      await this.reportItemModel.create(reportItemObj)
+    }
+
+    if (arrayErrors.length > 0) await this.errorModel.insertMany(arrayErrors)
+
+    reportDocument.status = EStatusData.completed
+    const { _id } = await reportDocument.save()
+
+    this.logger.log('Reporte generado')
+    return {
+      id: reportDocument._id,
+      ok: true,
+      msg: 'Report finished successfully',
+      startDate,
+      endDate: new Date(),
     }
   }
 
@@ -220,20 +219,143 @@ export class ReportService {
   //TODO: GENERATE CALCULATION FOR EACH REPORT ITEM
   async getReportItems(reportId: string): Promise<reportItemsReponse[]> {
     const report = await this.reportItemModel
-      .find({ report: reportId, _id: '63292903532588731745d8b5' })
+      .find({ report: reportId })
       .populate({ path: 'contaminantes' })
       .populate({
         path: 'diccionaryItem',
-        select: 'fuenteDeConsumo subfuenteDeConsumo',
+        select: 'fuenteDeConsumo subfuenteDeConsumo unidades magnitud',
+        populate: { path: 'magnitud', select: 'magnitud si equivalencias' },
       })
 
-    console.log(report.length)
+    // console.log(report[0])
 
     const reportOutput: reportItemsReponse[] = []
 
     for await (const reportItem of report) {
       const index = report.indexOf(reportItem)
-      if (index != 0) continue
+      // if (index != 14) continue  // caso borde Sin Contaminante Registrado en DB
+      // if (index != 18) continue  // caso borde unidad de medida en DB Huella chile distinta de Unidad Internacional SI
+      // if (index != 0) continue   // caso normal
+      // if (index != 23) continue  // caso borde con unidad introducida con magnitud (m3) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/t)
+      // if (index != 58) continue  // caso borde con unidad introducida con magnitud (km) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/persona-km)
+
+      // console.log(`checking reportItem ${reportItem}`)
+
+      if (reportItem.contaminantes.length === 0) {
+        const obj = {
+          nivel1: reportItem.nivel1,
+          nivel2: reportItem.nivel2,
+          nivel3: reportItem.nivel3,
+          nivel4: reportItem.nivel4,
+          consumption: reportItem.value,
+          consumptionUnit: reportItem.measureUnit,
+          costCenter: reportItem.area,
+          period: reportItem.period,
+          contaminantes: [],
+          totalFe: reportItem.factorFE,
+          measureUnitFe: 'kgCO2eq/kg',
+          totalEmission: reportItem.factorFE * reportItem.value * 0.001, // esta division por mil se hace automatica y hay que cambiarla dependiendo en que unidad nos dan el FACTOR FE 'custom'
+          totalEmissionUnit: 'kgCO2eq',
+        }
+        reportOutput.push(obj)
+        continue
+      }
+
+      // console.log(reportItem.measureUnit)
+      // console.log(reportItem.diccionaryItem.magnitud)
+      // console.log(reportItem.diccionaryItem.magnitud.equivalencias)
+
+      let totalEmission: number = 0
+      const totalFe = reportItem.contaminantes
+        .map(cont => cont.value)
+        .reduce(
+          (previousValue, currentValue) => previousValue + currentValue,
+          0,
+        )
+
+      let equivalenciaEncontrada: IEquivalencia
+      let equivalenciaEncontradaBDHuellaChile: IEquivalencia
+
+      // buscar equivalencia de reportItem.measureUnit
+      for await (const equivalencia of reportItem.diccionaryItem.magnitud
+        .equivalencias) {
+        if (!equivalencia.alias.includes(reportItem.measureUnit.toLowerCase()))
+          continue
+        equivalenciaEncontrada = {
+          name: equivalencia.name,
+          value: equivalencia.value,
+        }
+      }
+
+      // caso cuando viene reportItem.measureUnit en unidad internacional
+      if (
+        reportItem.measureUnit.toLowerCase() ===
+        reportItem.diccionaryItem.magnitud.si.toLowerCase()
+      ) {
+        equivalenciaEncontrada = {
+          name: reportItem.diccionaryItem.magnitud.si,
+          value: 1,
+        }
+      }
+
+      // console.log(equivalenciaEncontrada)
+      // console.log(reportItem.diccionaryItem.magnitud.si)
+
+      // buscar equivalencia de contaminante en BD Huella Chile
+      for await (const equivalencia of reportItem.diccionaryItem.magnitud
+        .equivalencias) {
+        if (
+          !equivalencia.alias.includes(
+            reportItem.contaminantes[0].measureUnit.split('/')[1],
+          )
+        )
+          continue
+        equivalenciaEncontradaBDHuellaChile = {
+          name: equivalencia.name,
+          value: equivalencia.value,
+        }
+      }
+      // caso cuando viene reportItem.contaminantes[0].measureUnit en unidad internacional
+      if (
+        reportItem.contaminantes[0].measureUnit.split('/')[1].toLowerCase() ===
+        reportItem.diccionaryItem.magnitud.si.toLowerCase()
+      ) {
+        equivalenciaEncontradaBDHuellaChile = {
+          name: reportItem.diccionaryItem.magnitud.si,
+          value: 1,
+        }
+      }
+
+      // CASOS ESPECIALES, VER COMO TRABAJARLOS A FUTURO YA QUE SON CONFLICTIVOS
+      if (index === 23)
+        equivalenciaEncontradaBDHuellaChile = { name: 'l', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
+      if (index === 59)
+        equivalenciaEncontradaBDHuellaChile = { name: 'km', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
+
+      // console.log(reportItem.contaminantes[0].measureUnit)
+      // console.log(equivalenciaEncontradaBDHuellaChile)
+
+      totalEmission =
+        reportItem.value *
+        equivalenciaEncontrada.value *
+        (totalFe * (1 / equivalenciaEncontradaBDHuellaChile.value))
+
+      const contaminantes = reportItem.contaminantes.map(c => {
+        let emission: number = 0
+
+        emission =
+          reportItem.value *
+          equivalenciaEncontrada.value *
+          (c.value * (1 / equivalenciaEncontradaBDHuellaChile.value))
+
+        return {
+          name: c.name,
+          value: c.value,
+          measureUnit: c.measureUnit,
+          emission,
+          emissionUnit: c.measureUnit,
+        }
+      })
 
       const obj = {
         nivel1: reportItem.nivel1,
@@ -241,55 +363,18 @@ export class ReportService {
         nivel3: reportItem.nivel3,
         nivel4: reportItem.nivel4,
         consumption: reportItem.value,
+        consumptionUnit: reportItem.measureUnit,
         costCenter: reportItem.area,
-        fe: reportItem.contaminantes
-          .map(cont => cont.value)
-          .reduce(
-            (previousValue, currentValue) => previousValue + currentValue,
-            0,
-          ),
-        measureUnitFe: reportItem.contaminantes[0]?.measureUnit,
-        contaminantes: reportItem.contaminantes.map(c => c.name),
+        period: reportItem.period,
+        contaminantes,
+        totalFe,
+        measureUnitFe: reportItem.contaminantes[0].measureUnit,
+        totalEmission,
+        totalEmissionUnit: reportItem.contaminantes[0].measureUnit,
       }
 
-      console.log(obj)
+      reportOutput.push(obj)
     }
-    // report.forEach(rep => {
-    //   const obj = {
-    //     nivel1: rep.nivel1,
-    //     nivel2: rep.nivel2,
-    //     nivel3: rep.nivel3,
-    //     nivel4: rep.nivel4,
-    //     consumption: rep.value,
-    //     costCenter: rep.area,
-    //     fe: rep.contaminantes
-    //       .map(cont => cont.value)
-    //       .reduce(
-    //         (previousValue, currentValue) => previousValue + currentValue,
-    //         0,
-    //       ),
-    //     measureUnitFe: rep.contaminantes[0]?.measureUnit,
-    //     contaminantes: rep.contaminantes.map(c => c.name),
-    //   }
-
-    //   let emissions: number
-
-    //   if (rep.nivel1 === 'Alcance 1')
-    //     emissions = (obj.fe * obj.consumption) / 1000
-    //   else if (rep.nivel1 === 'Alcance 2') emissions = obj.fe * obj.consumption
-    //   else if (rep.nivel1 === 'Alcance 3') {
-    //     if (
-    //       rep.nivel3 === 'Alimento' ||
-    //       rep.nivel2 === 'Transporte de carga' ||
-    //       rep.nivel2 === 'Movilización de personas'
-    //     )
-    //       emissions = obj.fe * obj.consumption
-    //     else emissions = (obj.fe * obj.consumption) / 1000
-    //   }
-
-    //   reportOutput.push({ ...obj, emissions })
-    // })
-
     return reportOutput
   }
 

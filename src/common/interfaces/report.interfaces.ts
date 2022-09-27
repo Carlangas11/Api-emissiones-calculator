@@ -35,3 +35,8 @@ export interface INivel4ModelResponse extends ICommonBD {
     nivel3: INivel3BD[];
     measureUnit: ICommonBD[];
 }
+
+export interface IEquivalencia {
+    name: string;
+    value: number;
+}
