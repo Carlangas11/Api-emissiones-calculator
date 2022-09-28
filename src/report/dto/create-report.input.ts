@@ -45,3 +45,19 @@ export class ReportOutPut {
   @Field()
   endDate: Date
 }
+
+
+@ObjectType()
+export class ReportList {
+  @Field(() => String)
+  id: String
+
+  @Field(() => String)
+  name: String
+
+  @Field(() => String)
+  status: EStatusData
+
+  @Field(() => Date)
+  createdAt: Date
+}

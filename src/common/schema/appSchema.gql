@@ -111,6 +111,19 @@ type ReportOutPut {
   endDate: DateTime!
 }
 
+type ReportList {
+  id: String!
+  name: String!
+  status: String!
+  createdAt: DateTime!
+}
+
+type ReportDeleteOutDto {
+  id: String!
+  description: String!
+  status: String!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -122,6 +135,7 @@ type Query {
   getReportItems(reportId: String!): [reportItemsReponse!]!
   generateReportExcel: Report!
   generateDicionary: Report!
+  getReports: [ReportList!]!
 }
 
 input FindUserInput {
@@ -145,6 +159,7 @@ type Mutation {
   updateContaminante(updateContaminanteInput: UpdateContaminanteInput!): contaminanteModel
   deleteContaminante(id: String!): contaminanteModel
   generateReport(input: [GenerateReportInput!]!): ReportOutPut!
+  deleteReport(id: String!): ReportDeleteOutDto!
 }
 
 input LoginUserInput {

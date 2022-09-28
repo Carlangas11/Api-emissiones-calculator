@@ -32,6 +32,7 @@ import { objectHaveUndefined } from '@helpers'
 import { Error } from '@src/common/schema/error.schema'
 import { GenerateReportInput, ReportOutPut } from './dto/create-report.input'
 import { ParseExcelMultiXResponse } from '@src/integration/entities/integration.entity'
+import { ReportDeleteOutDto } from './dto/delete-report.dto'
 
 @Injectable()
 export class ReportService {
@@ -61,7 +62,7 @@ export class ReportService {
 
     @InjectModel(Error.name)
     private errorModel: Model<Error>,
-  ) {}
+  ) { }
 
   private readonly logger = new Logger('ReportService')
 
@@ -76,14 +77,6 @@ export class ReportService {
     this.logger.log('Generando reporte')
     const startDate = new Date()
     const arrayErrors: IError[] = []
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //
-    ///////////////////////////////////////////////////////////////
-    await this.reportModel.deleteMany({})
-    await this.reportItemModel.deleteMany({})
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //
-    ///////////////////////////////////////////////////////////////
 
     const reportDocument = await this.reportModel.create({
       name: `Reporte ${startDate.toISOString()}`,
@@ -96,7 +89,7 @@ export class ReportService {
       // if (index != 23) continue
 
       // console.log(`Checking Line ${index + 2}`)
-      console.log(entry)
+      // console.log(entry)
 
       const searchObj = {
         fuenteDeConsumo: entry.fuenteDeConsumo,
@@ -115,7 +108,7 @@ export class ReportService {
         })
         .populate('magnitud')
       // console.log(diccionaryItem.contaminantes)
-      console.log({ diccionaryItem })
+      // console.log({ diccionaryItem })
 
       //control error
       if (!diccionaryItem) {
@@ -123,9 +116,8 @@ export class ReportService {
           operation: 'reportDocument',
           source: EErrorSource.report,
           relatedID: reportDocument._id,
-          description: `No se encontró en diccionario la linea ${
-            index + 2
-          } de .xlsx importado`,
+          description: `No se encontró en diccionario la linea ${index + 2
+            } de .xlsx importado`,
           line: index + 2,
           debugData: searchObj,
         })
@@ -239,6 +231,7 @@ export class ReportService {
       // if (index != 58) continue  // caso borde con unidad introducida con magnitud (km) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/persona-km)
 
       // console.log(`checking reportItem ${reportItem}`)
+      // console.log(`index: `, index)
 
       if (reportItem.contaminantes.length === 0) {
         const obj = {
@@ -328,7 +321,7 @@ export class ReportService {
       // CASOS ESPECIALES, VER COMO TRABAJARLOS A FUTURO YA QUE SON CONFLICTIVOS
       if (index === 23)
         equivalenciaEncontradaBDHuellaChile = { name: 'l', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
-      if (index === 59)
+      if (index === 58)
         equivalenciaEncontradaBDHuellaChile = { name: 'km', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
 
       // console.log(reportItem.contaminantes[0].measureUnit)
@@ -384,15 +377,9 @@ export class ReportService {
       await this.integrationService.parseDiccionaryExcel()
     if (!ok) throw new Error(msg)
 
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //
-    ///////////////////////////////////////////////////////////////
     await this.diccionarioModel.deleteMany({})
     await this.diccionarioItemModel.deleteMany({})
     await this.errorModel.deleteMany({ source: 'diccionary' })
-    ///////////////////////////////////////////////////////////////
-    // BORRAR ESTO PARA PRODUCCION / QA                          //
-    ///////////////////////////////////////////////////////////////
 
     const diccionarioDocument = await this.diccionarioModel.create({
       name: `Diccionario ${startDate.toISOString()}`,
@@ -485,9 +472,8 @@ export class ReportService {
             operation: 'generateDiccionary',
             source: EErrorSource.diccionary,
             relatedID: diccionarioDocument._id,
-            description: `Error en el registro linea ${
-              index + 2
-            }, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
+            description: `Error en el registro linea ${index + 2
+              }, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
             line: index + 2,
             debugData: idsFound,
           })
@@ -522,6 +508,36 @@ export class ReportService {
       startDate,
       endDate: new Date(),
       diccionaryID: diccionarioDocument._id,
+    }
+  }
+
+  async getReports(): Promise<any> {
+    const reports = await this.reportModel.find()
+    return reports
+  }
+
+  async deleteReport(reportID: string): Promise<ReportDeleteOutDto> {
+    const report = await this.reportModel.findById(reportID)
+
+    if (!report) {
+      return {
+        id: reportID,
+        description: `Report ${reportID} not found`,
+        status: EStatusData.error
+      }
+    }
+
+    await this.reportItemModel.deleteMany({
+      report: reportID,
+    })
+    await this.reportModel.deleteOne({
+      _id: reportID,
+    })
+
+    return {
+      id: reportID,
+      description: `Report ${report.name} and related Reports Items deleted`,
+      status: report.status,
     }
   }
 }
