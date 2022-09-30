@@ -44,7 +44,7 @@ export class ReportService {
     @InjectModel(Report.name)
     private reportModel: Model<Report>,
     @InjectModel(ReportItem.name)
-    private reportItemModel: Model<ReportItem>, // @InjectModel(ReportItemError.name) // private reportItemErrorModel: Model<ReportItemError>, // @InjectModel(ReportResult.name) // private reportResultModel: Model<ReportResult>,
+    private reportItemModel: Model<ReportItem>,
 
     @InjectModel(Nivel1.name)
     private nivel1Model: Model<Nivel1>,
@@ -207,7 +207,6 @@ export class ReportService {
     }
   }
 
-  //TODO: GENERATE CALCULATION FOR EACH REPORT ITEM
   async getReportItems(reportId: string): Promise<reportItemsReponse[]> {
     const report = await this.reportItemModel
       .find({ report: reportId })
