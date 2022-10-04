@@ -100,6 +100,8 @@ type reportItemsReponse {
   measureUnitFe: String!
   totalEmission: Float!
   totalEmissionUnit: String!
+  fuenteDeConsumo: String!
+  subfuenteDeConsumo: String!
   contaminantes: [contaminantesDto!]
 }
 

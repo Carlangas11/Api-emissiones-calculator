@@ -62,7 +62,7 @@ export class ReportService {
 
     @InjectModel(Error.name)
     private errorModel: Model<Error>,
-  ) { }
+  ) {}
 
   private readonly logger = new Logger('ReportService')
 
@@ -116,8 +116,9 @@ export class ReportService {
           operation: 'reportDocument',
           source: EErrorSource.report,
           relatedID: reportDocument._id,
-          description: `No se encontró en diccionario la linea ${index + 2
-            } de .xlsx importado`,
+          description: `No se encontró en diccionario la linea ${
+            index + 2
+          } de .xlsx importado`,
           line: index + 2,
           debugData: searchObj,
         })
@@ -235,6 +236,8 @@ export class ReportService {
 
       if (reportItem.contaminantes.length === 0) {
         const obj = {
+          fuenteDeConsumo: reportItem.diccionaryItem.fuenteDeConsumo,
+          subfuenteDeConsumo: reportItem.diccionaryItem.subfuenteDeConsumo,
           nivel1: reportItem.nivel1,
           nivel2: reportItem.nivel2,
           nivel3: reportItem.nivel3,
@@ -350,6 +353,8 @@ export class ReportService {
       })
 
       const obj = {
+        fuenteDeConsumo: reportItem.diccionaryItem.fuenteDeConsumo,
+        subfuenteDeConsumo: reportItem.diccionaryItem.subfuenteDeConsumo,
         nivel1: reportItem.nivel1,
         nivel2: reportItem.nivel2,
         nivel3: reportItem.nivel3,
@@ -472,8 +477,9 @@ export class ReportService {
             operation: 'generateDiccionary',
             source: EErrorSource.diccionary,
             relatedID: diccionarioDocument._id,
-            description: `Error en el registro linea ${index + 2
-              }, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
+            description: `Error en el registro linea ${
+              index + 2
+            }, no se encuentan algunos de los niveles al crear registro de diccionario para esta fila`,
             line: index + 2,
             debugData: idsFound,
           })
@@ -523,7 +529,7 @@ export class ReportService {
       return {
         id: reportID,
         description: `Report ${reportID} not found`,
-        status: EStatusData.error
+        status: EStatusData.error,
       }
     }
 

@@ -3,15 +3,15 @@ import { Field, ObjectType } from '@nestjs/graphql'
 @ObjectType()
 export class contaminantesDto {
   @Field()
-  name: string;
+  name: string
   @Field()
-  value: number;
+  value: number
   @Field()
-  measureUnit: string;
+  measureUnit: string
   @Field()
-  emission: number;
+  emission: number
   @Field()
-  emissionUnit: string;
+  emissionUnit: string
 }
 
 @ObjectType()
@@ -52,8 +52,12 @@ export class reportItemsReponse {
   @Field()
   totalEmissionUnit: string
 
+  @Field()
+  fuenteDeConsumo: string
+
+  @Field()
+  subfuenteDeConsumo: string
+
   @Field(() => [contaminantesDto], { nullable: true })
   contaminantes?: contaminantesDto[]
 }
-
-
