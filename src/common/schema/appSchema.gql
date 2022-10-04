@@ -126,6 +126,35 @@ type ReportDeleteOutDto {
   status: String!
 }
 
+type TotalEmissionsDTO {
+  emisionTotal: Float!
+  unidadMedida: String!
+}
+
+type EmisionesPorClasificacionDTO {
+  nombre: String!
+  valor: Float!
+  unidadMedida: String!
+}
+
+type AlcanceDTO {
+  totalPorAlcance: TotalEmissionsDTO!
+  emisionesPorUnidad: [EmisionesPorClasificacionDTO!]!
+  emisionesPorNivel2: [EmisionesPorClasificacionDTO!]!
+  emisionesPorNivel3: [EmisionesPorClasificacionDTO!]!
+}
+
+type EmisionesPorAlcanceDTO {
+  alcance1: AlcanceDTO
+  alcance2: AlcanceDTO
+  alcance3: AlcanceDTO
+}
+
+type GenerateGraphsResponse {
+  totalEmissions: TotalEmissionsDTO!
+  totalEmissionsByAlcance: EmisionesPorAlcanceDTO!
+}
+
 type Query {
   session: UserModel!
   users: [UserModel]!
@@ -138,6 +167,7 @@ type Query {
   generateReportExcel: Report!
   generateDicionary: Report!
   getReports: [ReportList!]!
+  getGraphs(input: GenerateGraphsRequest!): GenerateGraphsResponse!
 }
 
 input FindUserInput {
@@ -145,6 +175,11 @@ input FindUserInput {
 }
 
 union ResultUnion = nivel1Model | nivel2Model | nivel3Model | nivel4Model | contaminanteModel
+
+input GenerateGraphsRequest {
+  idReport: String!
+  alcances: [Float!]
+}
 
 type Mutation {
   login(loginUserInput: LoginUserInput!): LoginResponse!
