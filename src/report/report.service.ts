@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { FilterQuery, Model } from 'mongoose'
 
 import {
   Contaminante,
@@ -44,7 +44,7 @@ export class ReportService {
     @InjectModel(Report.name)
     private reportModel: Model<Report>,
     @InjectModel(ReportItem.name)
-    private reportItemModel: Model<ReportItem>, // @InjectModel(ReportItemError.name) // private reportItemErrorModel: Model<ReportItemError>, // @InjectModel(ReportResult.name) // private reportResultModel: Model<ReportResult>,
+    private reportItemModel: Model<ReportItem>,
 
     @InjectModel(Nivel1.name)
     private nivel1Model: Model<Nivel1>,
@@ -207,10 +207,15 @@ export class ReportService {
     }
   }
 
-  //TODO: GENERATE CALCULATION FOR EACH REPORT ITEM
-  async getReportItems(reportId: string): Promise<reportItemsReponse[]> {
+  async getReportItems(reportId: string, alcances: number[] = undefined): Promise<reportItemsReponse[]> {
+
+    let objSearch: FilterQuery<ReportItem> = { report: reportId }
+    if (alcances !== undefined) {
+      objSearch.nivel1 = { $in: [...alcances.map(alcance => `Alcance ${alcance}`)] }
+    }
+
     const report = await this.reportItemModel
-      .find({ report: reportId })
+      .find(objSearch)
       .populate({ path: 'contaminantes' })
       .populate({
         path: 'diccionaryItem',
@@ -227,7 +232,7 @@ export class ReportService {
       // if (index != 14) continue  // caso borde Sin Contaminante Registrado en DB
       // if (index != 18) continue  // caso borde unidad de medida en DB Huella chile distinta de Unidad Internacional SI
       // if (index != 0) continue   // caso normal
-      // if (index != 23) continue  // caso borde con unidad introducida con magnitud (m3) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/t)
+      // if (index != 23) continue  // caso borde con unidad introducida con magnitud (m3) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/t) --> semi fixed
       // if (index != 58) continue  // caso borde con unidad introducida con magnitud (km) difiere de la magnitud encontrada en DB Huella Chile (kgCO2eq/persona-km)
 
       // console.log(`checking reportItem ${reportItem}`)
@@ -290,7 +295,7 @@ export class ReportService {
         }
       }
 
-      // console.log(equivalenciaEncontrada)
+      // console.log({ equivalenciaEncontrada })
       // console.log(reportItem.diccionaryItem.magnitud.si)
 
       // buscar equivalencia de contaminante en BD Huella Chile
@@ -319,9 +324,24 @@ export class ReportService {
       }
 
       // CASOS ESPECIALES, VER COMO TRABAJARLOS A FUTURO YA QUE SON CONFLICTIVOS
-      if (index === 23)
+      if (reportItem.diccionaryItem.fuenteDeConsumo === 'Agua potable' &&
+        reportItem.diccionaryItem.subfuenteDeConsumo === 'Bidon' &&
+        reportItem.diccionaryItem.unidades === 'm3' &&
+        reportItem.nivel1 === 'Alcance 3' &&
+        reportItem.nivel2 === 'Bienes y servicios adquiridos' &&
+        reportItem.nivel3 === 'Bienes adquiridos' &&
+        reportItem.nivel4 === 'Productos alimenticios y bebidas general'
+      )
         equivalenciaEncontradaBDHuellaChile = { name: 'l', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
-      if (index === 58)
+
+        if (reportItem.diccionaryItem.fuenteDeConsumo === 'Traslados corporativos en bus' &&
+        reportItem.diccionaryItem.subfuenteDeConsumo === 'Nacional' &&
+        reportItem.diccionaryItem.unidades === 'Km' &&
+        reportItem.nivel1 === 'Alcance 3' &&
+        reportItem.nivel2 === 'Movilización de personas' &&
+        reportItem.nivel3 === 'Traslado diario de personal' &&
+        reportItem.nivel4 === 'Bus local (aprox. 25 pers.)'
+      )
         equivalenciaEncontradaBDHuellaChile = { name: 'km', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
 
       // console.log(reportItem.contaminantes[0].measureUnit)

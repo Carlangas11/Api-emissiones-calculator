@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { NivelesModule } from './niveles/niveles.module';
 import { IntegrationModule } from './integration/integration.module';
 import { ReportModule } from './report/report.module';
+import { GraphsModule } from './graphs/graphs.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ReportModule } from './report/report.module';
     NivelesModule,
     IntegrationModule,
     ReportModule,
+    GraphsModule,
   ],
 })
 export class AppModule {}

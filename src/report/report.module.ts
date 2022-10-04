@@ -30,6 +30,7 @@ import { Error, ErrorSchema } from '@common/schema/error.schema';
       { name: Error.name, schema: ErrorSchema },
     ]),
   ],
-  providers: [ReportResolver, ReportService, Mutex, Semaphore]
+  providers: [ReportResolver, ReportService, Mutex, Semaphore],
+  exports: [ReportService],
 })
 export class ReportModule {  }

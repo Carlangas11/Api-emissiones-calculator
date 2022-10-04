@@ -27,10 +27,7 @@ export class ReportResolver {
   }
 
   @Mutation(() => ReportOutPut)
-  async generateReport(
-    @Args({ name: 'input', type: () => [GenerateReportInput] })
-    input: GenerateReportInput[],
-  ): Promise<ReportOutPut> {
+  async generateReport(@Args({ name: 'input', type: () => [GenerateReportInput] }) input: GenerateReportInput[]): Promise<ReportOutPut> {
     return await this.reportService.generateReport(input)
   }
 
