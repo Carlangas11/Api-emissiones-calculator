@@ -139,7 +139,7 @@ type EmisionesPorClasificacionDTO {
 
 type AlcanceDTO {
   totalPorAlcance: TotalEmissionsDTO!
-  emisionesPorArea: [EmisionesPorClasificacionDTO!]!
+  emisionesPorUnidad: [EmisionesPorClasificacionDTO!]!
   emisionesPorNivel2: [EmisionesPorClasificacionDTO!]!
   emisionesPorNivel3: [EmisionesPorClasificacionDTO!]!
 }

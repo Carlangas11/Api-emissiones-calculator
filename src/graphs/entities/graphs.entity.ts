@@ -58,7 +58,7 @@ export class AlcanceDTO {
     totalPorAlcance: TotalEmissionsDTO;
 
     @Field(() => [EmisionesPorClasificacionDTO])
-    emisionesPorArea: EmisionesPorClasificacionDTO[];
+    emisionesPorUnidad: EmisionesPorClasificacionDTO[];
 
     @Field(() => [EmisionesPorClasificacionDTO])
     emisionesPorNivel2: EmisionesPorClasificacionDTO[];

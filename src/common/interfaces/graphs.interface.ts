@@ -23,7 +23,7 @@ export interface ITotalEmissions {
 
 export interface IGraphData {
     totalPorAlcance? : ITotalEmissions;
-    emisionesPorArea?: IGraphEmisionesPorArea[];
+    emisionesPorUnidad?: IGraphEmisionesPorArea[];
     emisionesPorNivel2?: IGraphEmisionesPorNivel2[];
     emisionesPorNivel3?: IGraphEmisionesPorNivel3[];
 }
