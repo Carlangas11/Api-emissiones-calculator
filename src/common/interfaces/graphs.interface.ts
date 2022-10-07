@@ -1,4 +1,4 @@
-export interface IGraphEmisionesPorUnidad {
+export interface IGraphEmisionesPorArea {
     nombre: string;
     valor: number;
     unidadMedida: string;
@@ -23,7 +23,7 @@ export interface ITotalEmissions {
 
 export interface IGraphData {
     totalPorAlcance? : ITotalEmissions;
-    emisionesPorUnidad?: IGraphEmisionesPorUnidad[];
+    emisionesPorArea?: IGraphEmisionesPorArea[];
     emisionesPorNivel2?: IGraphEmisionesPorNivel2[];
     emisionesPorNivel3?: IGraphEmisionesPorNivel3[];
 }
