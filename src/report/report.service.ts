@@ -6,21 +6,12 @@ import {
   Contaminante,
   Nivel1,
   Nivel2,
-  Nivel3,
-  Nivel4,
   MeasureUnit,
 } from '@src/niveles/schema'
 import { IntegrationService } from '@src/integration/integration.service'
+import { IFormatoExcelDiccionario } from '@src/integration/interface/result.interface'
 import {
-  IFormatoExcelDiccionario,
-  IFormatoExcelImportacion,
-  IFormatoExcelMultiXImportacion,
-} from '@src/integration/interface/result.interface'
-import {
-  IContaminante,
   IContaminanteDataResponse,
-  INivel4,
-  INivel4ModelResponse,
   IValidateLineError,
   IError,
   IEquivalencia,
@@ -50,10 +41,8 @@ export class ReportService {
     private nivel1Model: Model<Nivel1>,
     @InjectModel(Nivel2.name)
     private nivel2Model: Model<Nivel2>,
-    @InjectModel(Nivel4.name)
-    private nivel4Model: Model<Nivel4>,
     @InjectModel(MeasureUnit.name)
-    private measureUnitModel: Model<Nivel4>,
+    private measureUnitModel: Model<MeasureUnit>,
 
     @InjectModel(Diccionario.name)
     private diccionarioModel: Model<Diccionario>,
@@ -171,8 +160,6 @@ export class ReportService {
       endDate: new Date(),
     }
   }
-
-  //TODO: GENERATE INSERT IN REPORT ITEM
 
   async checkEntry(
     entry: IFormatoExcelDiccionario,
@@ -334,7 +321,7 @@ export class ReportService {
       )
         equivalenciaEncontradaBDHuellaChile = { name: 'l', value: 1000 } // caso borde con unidad introducida con magnitud difiere de la magnitud encontrada en DB Huella Chile
 
-        if (reportItem.diccionaryItem.fuenteDeConsumo === 'Traslados corporativos en bus' &&
+      if (reportItem.diccionaryItem.fuenteDeConsumo === 'Traslados corporativos en bus' &&
         reportItem.diccionaryItem.subfuenteDeConsumo === 'Nacional' &&
         reportItem.diccionaryItem.unidades === 'Km' &&
         reportItem.nivel1 === 'Alcance 3' &&

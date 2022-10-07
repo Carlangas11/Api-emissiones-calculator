@@ -14,7 +14,7 @@ export class NivelesResolver {
   constructor(private readonly nivelesService: NivelesService) {}
 
   @Query(() => String, { name: 'seed', nullable: true })
-  //   @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async seed(@Args('lvl') lvl: string) {
     return await this.nivelesService.seed(lvl)
   }
@@ -32,24 +32,6 @@ export class NivelesResolver {
   ): Promise<typeof ResultUnion> {
     return await this.nivelesService.findOne(id)
   }
-
-  // @Mutation(() => nivel1Model, { name: 'createNivel1', nullable: true })
-  // @UseGuards(JwtAuthGuard)
-  // async createNivel1(@Args('nivel1Input') nivel1Input: Nivel1Input ): Promise<typeof nivel1Model> {
-  //     return await this.nivelesService.createLevel1(nivel1Input)
-  // }
-
-  // @Mutation(() => nivel1Model, { name: 'updateNivel1', nullable: true })
-  // @UseGuards(JwtAuthGuard)
-  // async updateNivel1(@Args('updateNivel1Input', ParseMongObjectIdPipe) updateNivel1Input: UpdateNivel1Input ): Promise<typeof nivel1Model> {
-  //     return await this.nivelesService.updateLevel1(updateNivel1Input)
-  // }
-
-  // @Mutation(() => nivel1Model, { name: 'deleteNivel1', nullable: true })
-  // @UseGuards(JwtAuthGuard)
-  // async deleteNivel1(@Args('id', ParseMongoIdPipe) id: string ): Promise<any> {
-  //     return await this.nivelesService.deleteLevel1(id)
-  // }
 
   @Query(() => contaminanteResponse)
   async getContaminantes(
