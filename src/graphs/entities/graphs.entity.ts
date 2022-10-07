@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { IsArray, IsMongoId, IsOptional, IsString, IsIn, MaxLength, ArrayNotEmpty, ArrayMaxSize, ArrayUnique } from 'class-validator';
+import { IsArray, IsMongoId, IsOptional, IsString, IsIn, MaxLength, ArrayNotEmpty, ArrayMaxSize, ArrayUnique, IsNumber } from 'class-validator';
 
 
 //////////////////////// request graficos below ////////////////////////
@@ -32,11 +32,9 @@ export class GenerateGraphsRequest {
 export class TotalEmissionsDTO {
 
     @Field()
-    @IsString()
     emisionTotal: number;
 
     @Field()
-    @IsString()
     unidadMedida: string;
 }
 
@@ -44,15 +42,12 @@ export class TotalEmissionsDTO {
 export class EmisionesPorClasificacionDTO {
 
     @Field()
-    @IsString()
     nombre: string;
 
     @Field()
-    @IsString()
     valor: number;
 
     @Field()
-    @IsString()
     unidadMedida: string;
 }
 
@@ -63,7 +58,7 @@ export class AlcanceDTO {
     totalPorAlcance: TotalEmissionsDTO;
 
     @Field(() => [EmisionesPorClasificacionDTO])
-    emisionesPorUnidad: EmisionesPorClasificacionDTO[];
+    emisionesPorArea: EmisionesPorClasificacionDTO[];
 
     @Field(() => [EmisionesPorClasificacionDTO])
     emisionesPorNivel2: EmisionesPorClasificacionDTO[];

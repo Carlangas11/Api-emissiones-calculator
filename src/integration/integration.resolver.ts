@@ -8,9 +8,4 @@ import { UpdateIntegrationInput } from './dto/update-integration.input';
 export class IntegrationResolver {
   constructor(private readonly integrationService: IntegrationService) { }
 
-  // @Query(() => ParseExcelResponse)
-  // async parseExcel() {
-  //   return await this.integrationService.parseExcel();
-  // }
-
 }

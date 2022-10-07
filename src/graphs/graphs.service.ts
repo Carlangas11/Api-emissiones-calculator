@@ -1,18 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
 import { ITotalEmissions, ITotalEmissionsByAlcance } from '@src/common/interfaces';
 import { ReportService } from '@src/report/report.service';
-import { ReportItem } from '@src/report/schema';
-import { FilterQuery, Model } from 'mongoose';
-import { AlcanceDTO, GenerateGraphsRequest, GenerateGraphsResponse } from './entities/graphs.entity';
+import { GenerateGraphsRequest, GenerateGraphsResponse } from './entities/graphs.entity';
 
 @Injectable()
 export class GraphsService {
 
   constructor(
     private readonly reportService: ReportService,
-    @InjectModel(ReportItem.name)
-    private reportItemModel: Model<ReportItem>,
   ) { }
 
 
@@ -32,7 +27,7 @@ export class GraphsService {
           emisionTotal: 0,
           unidadMedida: 'tonCO2eq'
         },
-        emisionesPorUnidad: [],
+        emisionesPorArea: [],
         emisionesPorNivel2: [],
         emisionesPorNivel3: [],
       },
@@ -41,7 +36,7 @@ export class GraphsService {
           emisionTotal: 0,
           unidadMedida: 'tonCO2eq'
         },
-        emisionesPorUnidad: [],
+        emisionesPorArea: [],
         emisionesPorNivel2: [],
         emisionesPorNivel3: [],
       },
@@ -50,7 +45,7 @@ export class GraphsService {
           emisionTotal: 0,
           unidadMedida: 'tonCO2eq'
         },
-        emisionesPorUnidad: [],
+        emisionesPorArea: [],
         emisionesPorNivel2: [],
         emisionesPorNivel3: [],
       }
@@ -63,23 +58,23 @@ export class GraphsService {
       totalEmissionsByAlcance[`${itemGraph.nivel1}`].totalPorAlcance.emisionTotal += (itemGraph.totalEmission * 0.001);
 
       //Graph data por centro de costo
-      if (totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorUnidad.length === 0) {
-        totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorUnidad.push({
+      if (totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorArea.length === 0) {
+        totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorArea.push({
           nombre: itemGraph.costCenter,
           valor: (itemGraph.totalEmission * 0.001),
           unidadMedida: 'tonCO2eq'
         })
       } else {
-        const indexCostCenter = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorUnidad.findIndex(item => item.nombre === itemGraph.costCenter);
+        const indexCostCenter = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorArea.findIndex(item => item.nombre === itemGraph.costCenter);
         if (indexCostCenter === -1) {
-          totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorUnidad.push({
+          totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorArea.push({
             nombre: itemGraph.costCenter,
             valor: (itemGraph.totalEmission * 0.001),
             unidadMedida: 'tonCO2eq'
           })
         }
         if (indexCostCenter !== -1) {
-          totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorUnidad[indexCostCenter].valor += (itemGraph.totalEmission * 0.001);
+          totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorArea[indexCostCenter].valor += (itemGraph.totalEmission * 0.001);
         }
       }
 
@@ -131,12 +126,12 @@ export class GraphsService {
 
 
     let totalEmissionsByAlcanceResp = {};
-    if(alcances !== undefined){
+    if (alcances !== undefined) {
       alcances.forEach(numberAlcance => {
         totalEmissionsByAlcanceResp[`alcance${numberAlcance}`] = totalEmissionsByAlcance[`Alcance ${numberAlcance}`]
       })
     }
-    if( alcances === undefined ){
+    if (alcances === undefined) {
       totalEmissionsByAlcanceResp[`alcance1`] = totalEmissionsByAlcance[`Alcance 1`]
       totalEmissionsByAlcanceResp[`alcance2`] = totalEmissionsByAlcance[`Alcance 2`]
       totalEmissionsByAlcanceResp[`alcance3`] = totalEmissionsByAlcance[`Alcance 3`]
