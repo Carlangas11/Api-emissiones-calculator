@@ -137,11 +137,17 @@ type EmisionesPorClasificacionDTO {
   unidadMedida: String!
 }
 
+type EmisionesPorNivel2DTO {
+  nombre: String!
+  valor: Float!
+  unidadMedida: String!
+  area: [EmisionesPorClasificacionDTO!]!
+}
+
 type AlcanceDTO {
   totalPorAlcance: TotalEmissionsDTO!
   emisionesPorUnidad: [EmisionesPorClasificacionDTO!]!
-  emisionesPorNivel2: [EmisionesPorClasificacionDTO!]!
-  emisionesPorNivel3: [EmisionesPorClasificacionDTO!]!
+  emisionesPorNivel2: [EmisionesPorNivel2DTO!]!
 }
 
 type EmisionesPorAlcanceDTO {

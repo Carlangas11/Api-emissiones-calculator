@@ -29,7 +29,7 @@ export class GraphsService {
         },
         emisionesPorUnidad: [],
         emisionesPorNivel2: [],
-        emisionesPorNivel3: [],
+        // emisionesPorNivel3: [],
       },
       'Alcance 2': {
         totalPorAlcance: {
@@ -38,7 +38,7 @@ export class GraphsService {
         },
         emisionesPorUnidad: [],
         emisionesPorNivel2: [],
-        emisionesPorNivel3: [],
+        // emisionesPorNivel3: [],
       },
       'Alcance 3': {
         totalPorAlcance: {
@@ -47,7 +47,7 @@ export class GraphsService {
         },
         emisionesPorUnidad: [],
         emisionesPorNivel2: [],
-        emisionesPorNivel3: [],
+        // emisionesPorNivel3: [],
       }
     };
 
@@ -83,7 +83,12 @@ export class GraphsService {
         totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2.push({
           nombre: itemGraph.nivel2,
           valor: (itemGraph.totalEmission * 0.001),
-          unidadMedida: 'tonCO2eq'
+          unidadMedida: 'tonCO2eq',
+          area: [{
+            nombre: itemGraph.costCenter,
+            valor: (itemGraph.totalEmission * 0.001),
+            unidadMedida: 'tonCO2eq'
+          }]
         })
       } else {
         const indexNivel2 = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2.findIndex(item => item.nombre === itemGraph.nivel2);
@@ -91,36 +96,52 @@ export class GraphsService {
           totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2.push({
             nombre: itemGraph.nivel2,
             valor: (itemGraph.totalEmission * 0.001),
-            unidadMedida: 'tonCO2eq'
+            unidadMedida: 'tonCO2eq',
+            area: [{
+              nombre: itemGraph.costCenter,
+              valor: (itemGraph.totalEmission * 0.001),
+              unidadMedida: 'tonCO2eq'
+            }]
           })
         }
         if (indexNivel2 !== -1) {
+          const indexArea = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2[indexNivel2].area.findIndex(item => item.nombre === itemGraph.costCenter);
+          if (indexArea === -1) {
+            totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2[indexNivel2].area.push({
+              nombre: itemGraph.costCenter,
+              valor: (itemGraph.totalEmission * 0.001),
+              unidadMedida: 'tonCO2eq',
+            })
+          }
+          if (indexArea !== -1) {
+            totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2[indexNivel2].area[indexArea].valor += (itemGraph.totalEmission * 0.001);
+          }
           totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel2[indexNivel2].valor += (itemGraph.totalEmission * 0.001);
         }
       }
 
-      //Graph data por nivel 3
-      if (itemGraph.nivel3 !== undefined) {
-        if (totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.length === 0) {
-          totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.push({
-            nombre: itemGraph.nivel3,
-            valor: (itemGraph.totalEmission * 0.001),
-            unidadMedida: 'tonCO2eq'
-          })
-        } else {
-          const indexNivel3 = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.findIndex(item => item.nombre === itemGraph.nivel3);
-          if (indexNivel3 === -1) {
-            totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.push({
-              nombre: itemGraph.nivel3,
-              valor: (itemGraph.totalEmission * 0.001),
-              unidadMedida: 'tonCO2eq'
-            })
-          }
-          if (indexNivel3 !== -1) {
-            totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3[indexNivel3].valor += (itemGraph.totalEmission * 0.001);
-          }
-        }
-      }
+      // //Graph data por nivel 3
+      // if (itemGraph.nivel3 !== undefined) {
+      //   if (totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.length === 0) {
+      //     totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.push({
+      //       nombre: itemGraph.nivel3,
+      //       valor: (itemGraph.totalEmission * 0.001),
+      //       unidadMedida: 'tonCO2eq'
+      //     })
+      //   } else {
+      //     const indexNivel3 = totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.findIndex(item => item.nombre === itemGraph.nivel3);
+      //     if (indexNivel3 === -1) {
+      //       totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3.push({
+      //         nombre: itemGraph.nivel3,
+      //         valor: (itemGraph.totalEmission * 0.001),
+      //         unidadMedida: 'tonCO2eq'
+      //       })
+      //     }
+      //     if (indexNivel3 !== -1) {
+      //       totalEmissionsByAlcance[`${itemGraph.nivel1}`].emisionesPorNivel3[indexNivel3].valor += (itemGraph.totalEmission * 0.001);
+      //     }
+      //   }
+      // }
 
     })
 
