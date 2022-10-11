@@ -1,19 +1,24 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
-import { EnvConfiguration } from './config/app.config';
 import { JoiValidationSchema } from './config/joi.validation';
+import { EnvConfiguration } from './config/app.config';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
-import { join } from 'path';
 import { UsersModule } from './users/users.module';
 import { NivelesModule } from './niveles/niveles.module';
 import { IntegrationModule } from './integration/integration.module';
 import { ReportModule } from './report/report.module';
 import { GraphsModule } from './graphs/graphs.module';
+import { LoggerModule } from './common/logger/logger.module';
+import { LoggerMiddleware } from './common/middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerInterceptor } from './common/interceptors';
 
 @Module({
   imports: [
@@ -35,6 +40,23 @@ import { GraphsModule } from './graphs/graphs.module';
     IntegrationModule,
     ReportModule,
     GraphsModule,
+    LoggerModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'doc/schema'),
+      renderPath: '/docs',
+
+    })
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerInterceptor,
+    },
   ],
 })
-export class AppModule {}
+
+export class AppModule implements NestModule{
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

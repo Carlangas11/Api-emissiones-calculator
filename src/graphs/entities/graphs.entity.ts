@@ -52,6 +52,22 @@ export class EmisionesPorClasificacionDTO {
 }
 
 @ObjectType()
+export class EmisionesPorNivel2DTO {
+
+    @Field()
+    nombre: string;
+
+    @Field()
+    valor: number;
+
+    @Field()
+    unidadMedida: string;
+
+    @Field(() => [EmisionesPorClasificacionDTO])
+    area: EmisionesPorClasificacionDTO[];
+}
+
+@ObjectType()
 export class AlcanceDTO {
 
     @Field()
@@ -60,11 +76,11 @@ export class AlcanceDTO {
     @Field(() => [EmisionesPorClasificacionDTO])
     emisionesPorUnidad: EmisionesPorClasificacionDTO[];
 
-    @Field(() => [EmisionesPorClasificacionDTO])
-    emisionesPorNivel2: EmisionesPorClasificacionDTO[];
+    @Field(() => [EmisionesPorNivel2DTO])
+    emisionesPorNivel2: EmisionesPorNivel2DTO[];
 
-    @Field(() => [EmisionesPorClasificacionDTO])
-    emisionesPorNivel3: EmisionesPorClasificacionDTO[];
+    // @Field(() => [EmisionesPorClasificacionDTO])
+    // emisionesPorNivel3: EmisionesPorClasificacionDTO[];
 }
 
 @ObjectType()
