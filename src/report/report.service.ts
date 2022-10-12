@@ -241,7 +241,8 @@ export class ReportService {
           contaminantes: [],
           totalFe: reportItem.factorFE,
           measureUnitFe: 'kgCO2eq/kg',
-          totalEmission: reportItem.factorFE * reportItem.value * 0.001, // esta division por mil se hace automatica y hay que cambiarla dependiendo en que unidad nos dan el FACTOR FE 'custom'
+          // totalEmission: reportItem.factorFE * reportItem.value * 0.001, // esta division por mil se hace automatica y hay que cambiarla dependiendo en que unidad nos dan el FACTOR FE 'custom'
+          totalEmission: reportItem.factorFE * reportItem.value, // esta division por mil se hace automatica y hay que cambiarla dependiendo en que unidad nos dan el FACTOR FE 'custom'
           totalEmissionUnit: 'kgCO2eq',
         }
         reportOutput.push(obj)
