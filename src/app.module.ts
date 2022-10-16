@@ -19,6 +19,8 @@ import { LoggerModule } from './common/logger/logger.module';
 import { LoggerMiddleware } from './common/middleware';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerInterceptor } from './common/interceptors';
+import { ResourceModule } from './resource/resource.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -45,7 +47,9 @@ import { LoggerInterceptor } from './common/interceptors';
       rootPath: join(__dirname, '..', 'doc/schema'),
       renderPath: '/docs',
 
-    })
+    }),
+    ResourceModule,
+    HealthModule
   ],
   providers: [
     {
