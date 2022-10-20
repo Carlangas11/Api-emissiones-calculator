@@ -17,6 +17,7 @@ async function bootstrap() {
   );
 
   app.enableShutdownHooks();
+  app.enableCors();
 
   await app.listen( process.env.PORT, () => {
     Logger.log(`Listening on port ${ process.env.PORT }`);
